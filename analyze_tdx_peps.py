@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load the dataset
-file_path = "TDX_Project/TDX_Peps_Tickets_Report_January.csv"  
+file_path = "/Users/aviannceeuwing/Desktop/Codes/Data Squad /TDX_Project/datasquad/TDX_Peps_Tickets_Report_January.csv"  
 df = pd.read_csv(file_path, parse_dates=['Created', 'Resolved Date'])
 
 # 1. Identify the most popular locations
