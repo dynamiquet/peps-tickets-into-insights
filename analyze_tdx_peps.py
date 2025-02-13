@@ -1,3 +1,7 @@
+# DataSquad, Auiannce Euwing '26, code last successfully run 2025/01/14
+# This code pulls from the TDX_Peps_Tickets_Report_January.csv and returns the 5 most popular Peps locations, 5 most popular Other locations, Compares the created date and the resolved date, returns the 5 most popular departments, 5 most popular requestors and the top 10 people responsible for tickets.  
+
+
 import pandas as pd
 
 # Load the dataset
