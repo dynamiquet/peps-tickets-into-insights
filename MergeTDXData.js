@@ -1,3 +1,8 @@
+// DataSquad, Auiannce Euwing '26, code last successfully run 2025/02/11
+// This code merges the TDX Peps Tickets Report January and TDX Peps Task Report January 2 spreadsheets into a spreadsheet called Merged Report.
+// The MergeTDXData takes the spreadsheets and returns a merged spreadsheet.
+
+
 function mergeTDXData() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var ticketSheet = ss.getSheetByName("TDX Peps Tickets Report January");
