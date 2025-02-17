@@ -5,7 +5,7 @@
 import pandas as pd
 
 # Load the dataset
-file_path = "/Users/aviannceeuwing/Desktop/Codes/Data Squad /TDX_Project/datasquad/TDX_Peps_Tickets_Report_January.csv"  
+file_path = "TDX_Peps_Tickets_Report_January.csv"  
 df = pd.read_csv(file_path, parse_dates=['Created', 'Resolved Date'])
 
 # 1. Identify the most popular locations
@@ -38,3 +38,5 @@ print(top_requestors)
 top_responsible_people = df['Responsibility'].value_counts().head(10)
 print("\nTop 10 People Responsible for Events:")
 print(top_responsible_people)
+
+# Event Start Times
