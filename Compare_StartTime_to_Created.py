@@ -1,3 +1,6 @@
+# DataSquad, Auiannce Euwing '26, code last successfully run 2025/02/18
+
+
 import pandas as pd
 import re
 from dateutil import parser
