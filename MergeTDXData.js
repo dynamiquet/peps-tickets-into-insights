@@ -51,11 +51,13 @@ function mergeTDXData() {
     var taskTicketID = taskData[j][3]; // Assuming Task's Ticket ID is in column D (index 3)
 
     if (ticketMap[taskTicketID]) {
+      if (ticketMap[taskTicketID].tasks.eventStarts.length === 0) { // To ensure event start time is stored once for ticket with multiple tasks
+        ticketMap[taskTicketID].tasks.eventStarts.push(taskData[j][6] || "");
+      }
       ticketMap[taskTicketID].tasks.ids.push(taskData[j][0] || ""); // Task ID
       ticketMap[taskTicketID].tasks.titles.push(taskData[j][1] || ""); // Task Title
       ticketMap[taskTicketID].tasks.createdDates.push(taskData[j][4] || ""); // Task Created
       ticketMap[taskTicketID].tasks.dueDates.push(taskData[j][5] || ""); // Task Due
-      ticketMap[taskTicketID].tasks.eventStarts.push(taskData[j][6] || ""); // Event Start
       ticketMap[taskTicketID].tasks.respGroups.push(taskData[j][7] || ""); // Task Resp Group
       ticketMap[taskTicketID].tasks.responsibilities.push(taskData[j][8] || ""); // Task Responsibility
     }
