@@ -1,5 +1,7 @@
-# DataSquad, Auiannce Euwing '26, code last successfully run 2025/02/18
-
+# Author: Auiannce '26
+# Organization: DataSquad
+# Description: This code created a bar chart for the top 10 most reserved locations. 
+# Last Successfully ran: 2025/02/25
 import pandas as pd
 import matplotlib.pyplot as plt
 
