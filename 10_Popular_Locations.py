@@ -3,7 +3,7 @@
 import pandas as pd
 
 # Load the CSV file
-df = pd.read_csv("Data-PEPS-TDX Tickets - Merged Report.csv")
+df = pd.read_csv("Data/Data-PEPS-TDX Tickets - Merged Report.csv")
 
 # Ensure column names match
 peps_column = "Peps Location" 

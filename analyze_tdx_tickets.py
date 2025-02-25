@@ -25,8 +25,8 @@ def clean_event_start_time_string(datetime_str):
         return pd.NaT  # Return NaT if parsing fails
 
 def groupDepartmentsByTimeDifference(df):
-    df['Time Difference (Days)'] = (df['Event Start Times'] - df['Created']).dt.days # Compute the difference in days
-    dept_avg_time_diff = df.groupby('Acct/Dept')['Time Difference (Days)'].mean()
+    df['Time Difference (Days)'] = (df['Event Start Times'] - df['Created']).dt.days  # Compute whole-day difference
+    dept_avg_time_diff = df.groupby('Acct/Dept')['Time Difference (Days)'].mean().round()  # Round to whole numbers
     return dept_avg_time_diff
 
 def parseEventStartTimes(df):
@@ -38,8 +38,13 @@ def parseEventStartTimes(df):
 def TopDepartmentsByTimeDifference(df):
     grouped_dept_avg_diff = groupDepartmentsByTimeDifference(df)
     top_dept_by_diff = grouped_dept_avg_diff.nsmallest(10)
-    print(top_dept_by_diff)
-    return(top_dept_by_diff)
+    for dept, days in top_dept_by_diff.items():
+        if days < 0:
+            print(f"{dept} typically creates events about {-days} days after the event has already happened.")
+        elif days == 0:
+            print(f"{dept} generally creates events on the same day they start.")
+        else:
+            print(f"{dept} typically creates events about {days} days before they start.")
 
 #  Return sorted Series of hours of the day by event load
 def loadByHour(number=24): # Default to 24 hours
@@ -55,6 +60,7 @@ def loadByDay(number=31):
 if __name__ == "__main__":
     df = loadData()
     df['Event Start Times'] = df['Event Start Times'].apply(clean_event_start_time_string) # Clean the 'Event Start Times' column
-    parseEventStartTimes(df)
-    loadByHour()
-    loadByDay()
+    #parseEventStartTimes(df)
+    #loadByHour()
+    #loadByDay() 
+    TopDepartmentsByTimeDifference(df)
