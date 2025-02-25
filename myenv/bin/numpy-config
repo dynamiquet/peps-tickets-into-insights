@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/aviannceeuwing/Desktop/Codes/Data Squad /myenv/bin/python" "$0" "$@"
+'''exec' "/Users/aviannceeuwing/Desktop/Codes/Data Squad /TDX_Project/datasquad/myenv/bin/python3.12" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
