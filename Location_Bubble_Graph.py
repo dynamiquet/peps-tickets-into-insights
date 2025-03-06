@@ -1,3 +1,8 @@
+# Author: Auiannce Euwing '26
+# Organization: DataSquad
+# Description: This code creates a Bubble Graph were the y-axis is time and the x-axis is locations 
+# Last Successfully ran: 2025/03/06
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
