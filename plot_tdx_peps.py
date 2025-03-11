@@ -29,6 +29,7 @@ def plotEventLoad(df, time_unit):
     plt.xlabel(x_label)
     plt.ylabel('Number of Events')
     plt.xticks(plt.xticks()[0][::2]) # Skips one tick
+
 def plotDayofTheWeekByHour(df):
     heatmap_data = df.pivot_table(index='event_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))

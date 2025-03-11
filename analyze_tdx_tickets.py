@@ -81,9 +81,18 @@ def eventLoadByDayofTheWeek(df=default_df, number=7):
 
 if __name__ == "__main__":
     df = loadDataTickets()
-    parseEventStartTimes()
 
-    eventLoadByDayofTheWeek()
+    print(df['Event Start Times'].unique())
+    parseEventStartTimes(df)
+
+    print(df['event_hour'].unique(), "hour")
+    print(df['event_hour_24'].unique(), "hour 24")
+    # print(df['event_day'].unique(), 'day')
+    # print(df['day_of_the_week'].unique(), 'day of the week')
+    # print(df['event_month'].unique, 'event month')
+
+    
+    # eventLoadByDayofTheWeek()
     # eventLoadByHour()
     # eventLoadByDayofTheMonth() 
     # topDepartmentsByTimeDifference(df)
