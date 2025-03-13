@@ -50,15 +50,30 @@ def plotDayByMonth(df):
     plt.ylabel('Month of the Year')
     plt.show()
 
+# TO DO: Plot EVENT LOAD by DAY OF THE WEEK by WEEK OF THE TERM
+# This going to be a heatmap with week number on x-axis; day of the week on y-axis; and the number of events as the color intensity
+
+def plotDayOfTheWeekOfTheTerm(df):
+    heatmap_data = df.pivot_table(index='day_of_the_week', columns='week_of_the_term', aggfunc='size', fill_value=0)
+    plt.figure(figsize=(14, 8))
+    sns.heatmap(heatmap_data, cmap='coolwarm', annot=True, fmt='d')
+    plt.title('Heatmap of Event Load by Day of the Week and Week of the Term')
+    plt.ylabel('Day of the Week')
+    plt.xlabel('Week of the Term')
+    plt.show()
+
 if __name__ == "__main__":
     df = loadDataTickets()
     parseEventStartTimes(df)
     orderEventHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
 
+    df1 = divideUpTrimesters(df)
+    plotDayOfTheWeekOfTheTerm(df1)
+
     #### Plotting
 
-    plotEventLoad(df, "hour")
-    plotEventLoad(df, "day")
-    plotDayofTheWeekByHour(df)
-    plotDayByMonth(df)
+    # plotEventLoad(df, "hour")
+    # plotEventLoad(df, "day")
+    # plotDayofTheWeekByHour(df)
+    # plotDayByMonth(df)

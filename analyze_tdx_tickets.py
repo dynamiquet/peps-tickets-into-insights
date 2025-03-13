@@ -14,6 +14,7 @@ def loadDataTickets():
     df['Created'] = pd.to_datetime(df['Created'], format='%m/%d/%Y', errors='coerce') # Convert 'Created' column to datetime (assuming format is MM/DD/YYYY)
     df = df.dropna(subset=['Created', 'Event Start Times'])  # Remove rows where dates are missing
     df['Event Start Times'] = df['Event Start Times'].apply(cleanEventTimeString)
+    df['Event Start Times'] = df['Event Start Times'] + pd.Timedelta(hours=4)  # Adds 4 hours to account for the TDX data time zone conversion
     return df
 
 def cleanEventTimeString(datetime_str):
@@ -79,14 +80,72 @@ def eventLoadByDayofTheWeek(df=default_df, number=7):
     print(f"Top {number} loaded days of the week: {top_loaded_days}")
     return top_loaded_days
 
+def divideUpTrimesters(df=default_df):
+    term_dates = {
+        "fall": [
+            ("2022-09-12", "2022-11-16"),
+            ("2023-09-11", "2023-11-15"),
+            ("2024-09-16", "2024-11-20"),
+        ],
+        "winter": [
+            ("2023-01-04", "2023-03-10"),
+            ("2024-01-03", "2024-03-08"),
+            ("2025-01-06", "2025-03-12"),
+        ],
+        "spring": [
+            ("2023-03-27", "2023-05-29"),
+            ("2024-03-25", "2024-05-29"),
+            ("2025-03-31", "2025-06-04"),
+        ],
+
+    }
+    def assign_week_of_term(event_start, term_start):
+        delta = (event_start - term_start).days
+        return f"Week {(delta // 7) + 1}"
+
+    def process_term_data(df, term):
+        if term not in term_dates:
+            print("Invalid term name! Use 'fall', 'winter', or 'spring'.")
+            return None
+
+        aggregated_data = []
+
+        for term_start, term_end in term_dates[term]:
+            term_start = pd.to_datetime(term_start)
+            term_end = pd.to_datetime(term_end)
+
+            # Filter events within the term
+            mask = (df['Event Start Times'] >= term_start) & (df['Event Start Times'] <= term_end)
+            term_df = df[mask].copy()
+
+
+            # Assign week of the term and day of the week
+            term_df['week_of_the_term'] = term_df['Event Start Times'].apply(lambda x: assign_week_of_term(x, term_start))
+            term_df['day_of_the_week'] = term_df['Event Start Times'].dt.day_name()
+
+        # print(term_df['week_of_the_term'])
+        print(term_df.groupby(['week_of_the_term']).size().reset_index(name='event_count'))
+        return term_df
+    return process_term_data(df, "fall")  
+    #         # Count events per (week number, day of week)
+    #         event_counts = term_df.groupby(['week_of_the_term', 'day_of_week']).size().reset_index(name='event_count')
+
+    #         aggregated_data.append(event_counts)
+
+    # # # Combine all years' data
+    # aggregated_df = pd.concat(aggregated_data).groupby(['week_of_the_term', 'day_of_week']).sum().reset_index()
+    # return aggregated_df
+
+
 if __name__ == "__main__":
     df = loadDataTickets()
 
-    print(df['Event Start Times'].unique())
-    parseEventStartTimes(df)
+    divideUpTrimesters(df)
+    # print(df['Event Start Times'].unique())
+    # parseEventStartTimes(df)
 
-    print(df['event_hour'].unique(), "hour")
-    print(df['event_hour_24'].unique(), "hour 24")
+    # print(df['event_hour'].unique(), "hour")
+    # print(df['event_hour_24'].unique(), "hour 24")
     # print(df['event_day'].unique(), 'day')
     # print(df['day_of_the_week'].unique(), 'day of the week')
     # print(df['event_month'].unique, 'event month')
