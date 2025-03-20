@@ -28,6 +28,23 @@ def cleanEventTimeString(datetime_str):
         return pd.NaT  # Return NaT if parsing fails
 
 default_df = loadDataTickets()
+term_dates = {
+    "fall": [
+        ("2022-09-12", "2022-11-16"),
+        ("2023-09-11", "2023-11-15"),
+        ("2024-09-16", "2024-11-20"),
+    ],
+    "winter": [
+        ("2023-01-04", "2023-03-10"),
+        ("2024-01-03", "2024-03-08"),
+        ("2025-01-06", "2025-03-12"),
+    ],
+    "spring": [
+        ("2023-03-27", "2023-05-29"),
+        ("2024-03-25", "2024-05-29"),
+        ("2025-03-31", "2025-06-04"),
+    ],
+}
 
 def parseEventStartTimes(df=default_df):
     df['event_hour_24'] = df['Event Start Times'].dt.hour
@@ -65,7 +82,7 @@ def topDepartmentsByTimeDifference(df=default_df):
             print(f"{dept} typically creates events about {days} days before they start.")
     return top_dept_by_diff
 
-def eventLoadByHour(df=default_df, number=24): # Default to 24 hours
+def eventLoadByHour(df=default_df, number=24):
     top_loaded_hours = df['event_hour'].value_counts().head(number)
     print(f"Top {number} loaded hours: {top_loaded_hours}")
     return top_loaded_hours
@@ -80,25 +97,7 @@ def eventLoadByDayofTheWeek(df=default_df, number=7):
     print(f"Top {number} loaded days of the week: {top_loaded_days}")
     return top_loaded_days
 
-def divideUpTrimesters(df=default_df):
-    term_dates = {
-        "fall": [
-            ("2022-09-12", "2022-11-16"),
-            ("2023-09-11", "2023-11-15"),
-            ("2024-09-16", "2024-11-20"),
-        ],
-        "winter": [
-            ("2023-01-04", "2023-03-10"),
-            ("2024-01-03", "2024-03-08"),
-            ("2025-01-06", "2025-03-12"),
-        ],
-        "spring": [
-            ("2023-03-27", "2023-05-29"),
-            ("2024-03-25", "2024-05-29"),
-            ("2025-03-31", "2025-06-04"),
-        ],
-
-    }
+def eventLoadByWeekOfTheTerm(df=default_df):
     # TO DO: Change to accruately accommodate all terms. This only accurately accomodates Fall and Spring term because they happen to start on mondays
     def assign_week_of_term(event_start, term_start):
         delta = (event_start - term_start).days
@@ -141,7 +140,7 @@ def divideUpTrimesters(df=default_df):
 if __name__ == "__main__":
     df = loadDataTickets()
 
-    divideUpTrimesters(df)
+    eventLoadByWeekOfTheTerm(df)
     # print(df['Event Start Times'].unique())
     # parseEventStartTimes(df)
 
