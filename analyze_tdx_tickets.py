@@ -1,7 +1,7 @@
 # Author: Auiannce Euwing '26, Dynamique Twizere '27
 # Organization: DataSquad
 # Description: This code contains functions that analyze the TDX tickets data from "Data-PEPS-TDX Tickets - Merged Report.csv" and returns the top departments by time difference between 'Event Start Times' and 'Created', the load by hour, and the load by day.
-# Last Successfully ran: 2025/02/21 
+# Last Successfully ran: 2025/03/19
 
 import pandas as pd
 import re
@@ -99,6 +99,7 @@ def divideUpTrimesters(df=default_df):
         ],
 
     }
+    # TO DO: Change to accruately accommodate all terms. This only accurately accomodates Fall and Spring term because they happen to start on mondays
     def assign_week_of_term(event_start, term_start):
         delta = (event_start - term_start).days
         return f"Week {(delta // 7) + 1}"
