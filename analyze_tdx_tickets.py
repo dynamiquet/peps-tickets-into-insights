@@ -98,7 +98,7 @@ def eventLoadByDayofTheWeek(df=default_df, number=7):
     print(f"Top {number} loaded days of the week: {top_loaded_days}")
     return top_loaded_days
 
-def assign_week_of_term(event_start, term_start):
+def assignWeekofTheTerm(event_start, term_start):
     event_start = pd.to_datetime(event_start)
     term_start = pd.to_datetime(term_start)
 
@@ -108,8 +108,8 @@ def assign_week_of_term(event_start, term_start):
 
 def eventLoadByWeekOfTheTerm(df=default_df, term=default_term):
     if term.lower() not in term_dates:
-        print("Invalid term name! Use 'fall', 'winter', or 'spring'.for name of the term")
-        return None
+        print("Invalid term name! Use 'fall', 'winter', or 'spring' for the name of the term")
+        return
 
     aggregated_data = []
     term_df_list = []
@@ -124,7 +124,7 @@ def eventLoadByWeekOfTheTerm(df=default_df, term=default_term):
         term_df_unique = df[mask].copy()
 
         # Categorize into weeks of the term
-        term_df_unique['week_of_the_term'] = term_df_unique['Event Start Times'].apply(lambda x: assign_week_of_term(x, term_start))
+        term_df_unique['week_of_the_term'] = term_df_unique['Event Start Times'].apply(lambda x: assignWeekofTheTerm(x, term_start))
         term_df_unique['day_of_the_week'] = term_df_unique['Event Start Times'].dt.day_name()
 
         term_df_list.append(term_df_unique)

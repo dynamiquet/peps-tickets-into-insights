@@ -23,7 +23,7 @@ def plotEventLoad(df, time_unit):
     else:
         raise ValueError("Invalid time_unit. Use 'hour' or 'day'.")
     
-    sns.countplot(x=column, data=df, palette='viridis')
+    sns.countplot(x=column, data=df, color='Gray')
     
     plt.title(f'Event Load by {x_label}')
     plt.xlabel(x_label)
@@ -33,7 +33,7 @@ def plotEventLoad(df, time_unit):
 def plotDayofTheWeekByHour(df):
     heatmap_data = df.pivot_table(index='event_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))
-    sns.heatmap(heatmap_data, cmap='coolwarm', annot=True, fmt='d')
+    sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
     plt.title('Heatmap of Event Load by Hour and Day of the Week')
     plt.gca().invert_yaxis()
     plt.ylabel('Hour of the Day')
@@ -43,22 +43,26 @@ def plotDayofTheWeekByHour(df):
 def plotDayByMonth(df):
     heatmap_data = df.pivot_table(index='event_month', columns='event_day', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))
-    sns.heatmap(heatmap_data, cmap='coolwarm', annot=True, fmt='d')
+    sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
     plt.title('Heatmap of Event Load by Day and Month')
     plt.gca().invert_yaxis()
     plt.xlabel('Day of the Month')
     plt.ylabel('Month of the Year')
     plt.show()
 
-# TO DO: Plot EVENT LOAD by DAY OF THE WEEK by WEEK OF THE TERM
-# This going to be a heatmap with week number on x-axis; day of the week on y-axis; and the number of events as the color intensity
-
 def plotDayOfTheWeekByWeekOfTheTerm(df):
+    # Ensure the days of the week and weeks of the term are ordered correctly
+    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    weeks_order = sorted(df['week_of_the_term'].unique(), key=lambda x: int(x.split()[1]))
+
     heatmap_data = df.pivot_table(index='day_of_the_week', columns='week_of_the_term', aggfunc='size', fill_value=0)
+    heatmap_data = heatmap_data.reindex(index=days_order, columns=weeks_order)
+
     plt.figure(figsize=(14, 8))
-    sns.heatmap(heatmap_data, cmap='coolwarm', annot=True, fmt='d')
+    sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
     plt.title('Heatmap of Event Load by Day of the Week and Week of the Term')
     plt.ylabel('Day of the Week')
+    plt.gca().invert_yaxis()
     plt.xlabel('Week of the Term')
     plt.show()
 
@@ -68,13 +72,12 @@ if __name__ == "__main__":
     orderEventHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
 
-    df1 = eventLoadByWeekOfTheTerm(df, "fall")
-    print(df1.info())
-    plotDayOfTheWeekByWeekOfTheTerm(df1)
-
     #### Plotting
 
-    # plotEventLoad(df, "hour")
-    # plotEventLoad(df, "day")
-    # plotDayofTheWeekByHour(df)
-    # plotDayByMonth(df)
+    df1 = eventLoadByWeekOfTheTerm(df, "fall")
+    plotDayOfTheWeekByWeekOfTheTerm(df1)
+    
+    plotEventLoad(df, "hour")
+    plotEventLoad(df, "day")
+    plotDayofTheWeekByHour(df)
+    plotDayByMonth(df)
