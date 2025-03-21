@@ -96,11 +96,11 @@ if __name__ == "__main__":
 
     #### Plotting
 
-    df1 = eventLoadByWeekOfTheTerm(df, "fall")
+    df1 = eventLoadByWeekOfTheTerm(df, "winter")
     plotDayOfTheWeekByWeekOfTheTermYearly(df1)
-    plotDayOfTheWeekByWeekOfTheTermTotal(df1)
+    # plotDayOfTheWeekByWeekOfTheTermTotal(df1)
     
-    plotEventLoad(df, "hour")
-    plotEventLoad(df, "day")
-    plotDayofTheWeekByHour(df)
-    plotDayByMonth(df)
+    # plotEventLoad(df, "hour")
+    # plotEventLoad(df, "day")
+    # plotDayofTheWeekByHour(df)
+    # plotDayByMonth(df)
