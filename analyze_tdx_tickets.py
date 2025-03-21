@@ -118,6 +118,7 @@ def eventLoadByWeekOfTheTerm(df=default_df, term=default_term):
     for term_start, term_end in term_dates[term]:
         term_start = pd.to_datetime(term_start)
         term_end = pd.to_datetime(term_end)
+        term_year = term_start.year
 
         # Categorize into terms
         mask = (df['Event Start Times'] >= term_start) & (df['Event Start Times'] <= term_end)
@@ -126,6 +127,8 @@ def eventLoadByWeekOfTheTerm(df=default_df, term=default_term):
         # Categorize into weeks of the term
         term_df_unique['week_of_the_term'] = term_df_unique['Event Start Times'].apply(lambda x: assignWeekofTheTerm(x, term_start))
         term_df_unique['day_of_the_week'] = term_df_unique['Event Start Times'].dt.day_name()
+        term_df_unique['term_year'] = f"{term.capitalize()} {term_year}"
+        term_df_unique['term'] = term.lower()
 
         term_df_list.append(term_df_unique)
     
