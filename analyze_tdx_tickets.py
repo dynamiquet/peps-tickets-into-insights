@@ -112,7 +112,8 @@ def eventLoadByWeekOfTheTerm(df=default_df, term=default_term):
         return None
 
     aggregated_data = []
-    term_df = []
+    term_df_list = []
+    term_df = pd.DataFrame()
 
     for term_start, term_end in term_dates[term]:
         term_start = pd.to_datetime(term_start)
@@ -121,30 +122,16 @@ def eventLoadByWeekOfTheTerm(df=default_df, term=default_term):
         # Categorize into terms
         mask = (df['Event Start Times'] >= term_start) & (df['Event Start Times'] <= term_end)
         term_df_unique = df[mask].copy()
-        term_df.append(term_df_unique)
+
+        # Categorize into weeks of the term
+        term_df_unique['week_of_the_term'] = term_df_unique['Event Start Times'].apply(lambda x: assign_week_of_term(x, term_start))
+        term_df_unique['day_of_the_week'] = term_df_unique['Event Start Times'].dt.day_name()
+
+        term_df_list.append(term_df_unique)
     
-    final_df = pd.concat(term_df)
-    print(final_df.info())
-
-
-        # # Assign week of the term and day of the week
-        # term_df['week_of_the_term'] = term_df['Event Start Times'].apply(lambda x: assign_week_of_term(x, term_start))
-        # term_df['day_of_the_week'] = term_df['Event Start Times'].dt.day_name()
-
-    # print(term_df['week_of_the_term'])
-    # print(term_df.head(0))
-    # print(term_df.info())
-    # print(term_df.groupby(['week_of_the_term']).size())
-    # return term_df
-
-    #         # Count events per (week number, day of week)
-    #         event_counts = term_df.groupby(['week_of_the_term', 'day_of_week']).size().reset_index(name='event_count')
-
-    #         aggregated_data.append(event_counts)
-
-    # # # Combine all years' data
-    # aggregated_df = pd.concat(aggregated_data).groupby(['week_of_the_term', 'day_of_week']).sum().reset_index()
-    # return aggregated_df
+    term_df = pd.concat(term_df_list)
+    print(term_df.info())
+    return term_df
 
 if __name__ == "__main__":
     df = loadDataTickets()
@@ -153,14 +140,6 @@ if __name__ == "__main__":
 
     eventLoadByWeekOfTheTerm(df, "spring")
     # print(df['Event Start Times'].unique())
-    # parseEventStartTimes(df)
-
-    # print(df['event_hour'].unique(), "hour")
-    # print(df['event_hour_24'].unique(), "hour 24")
-    # print(df['event_day'].unique(), 'day')
-    # print(df['day_of_the_week'].unique(), 'day of the week')
-    # print(df['event_month'].unique, 'event month')
-
     
     # eventLoadByDayofTheWeek()
     # eventLoadByHour()

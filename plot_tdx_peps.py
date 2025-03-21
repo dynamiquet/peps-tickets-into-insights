@@ -68,7 +68,8 @@ if __name__ == "__main__":
     orderEventHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
 
-    df1 = eventLoadByWeekOfTheTerm(df)
+    df1 = eventLoadByWeekOfTheTerm(df, "fall")
+    print(df1.info())
     plotDayOfTheWeekByWeekOfTheTerm(df1)
 
     #### Plotting
