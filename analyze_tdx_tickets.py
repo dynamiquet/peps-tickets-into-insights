@@ -28,6 +28,7 @@ def cleanEventTimeString(datetime_str):
         return pd.NaT  # Return NaT if parsing fails
 
 default_df = loadDataTickets()
+default_term = "fall"
 term_dates = {
     "fall": [
         ("2022-09-12", "2022-11-16"),
@@ -97,36 +98,45 @@ def eventLoadByDayofTheWeek(df=default_df, number=7):
     print(f"Top {number} loaded days of the week: {top_loaded_days}")
     return top_loaded_days
 
-def eventLoadByWeekOfTheTerm(df=default_df):
-    # TO DO: Change to accruately accommodate all terms. This only accurately accomodates Fall and Spring term because they happen to start on mondays
-    def assign_week_of_term(event_start, term_start):
-        delta = (event_start - term_start).days
-        return f"Week {(delta // 7) + 1}"
+def assign_week_of_term(event_start, term_start):
+    event_start = pd.to_datetime(event_start)
+    term_start = pd.to_datetime(term_start)
 
-    def process_term_data(df, term):
-        if term not in term_dates:
-            print("Invalid term name! Use 'fall', 'winter', or 'spring'.")
-            return None
+    first_monday = term_start - pd.Timedelta(days=term_start.weekday())
+    days_into_term = (event_start - term_start).days
+    return f"Week {(days_into_term // 7) + 1}"
 
-        aggregated_data = []
+def eventLoadByWeekOfTheTerm(df=default_df, term=default_term):
+    if term.lower() not in term_dates:
+        print("Invalid term name! Use 'fall', 'winter', or 'spring'.for name of the term")
+        return None
 
-        for term_start, term_end in term_dates[term]:
-            term_start = pd.to_datetime(term_start)
-            term_end = pd.to_datetime(term_end)
+    aggregated_data = []
+    term_df = []
 
-            # Filter events within the term
-            mask = (df['Event Start Times'] >= term_start) & (df['Event Start Times'] <= term_end)
-            term_df = df[mask].copy()
+    for term_start, term_end in term_dates[term]:
+        term_start = pd.to_datetime(term_start)
+        term_end = pd.to_datetime(term_end)
+
+        # Categorize into terms
+        mask = (df['Event Start Times'] >= term_start) & (df['Event Start Times'] <= term_end)
+        term_df_unique = df[mask].copy()
+        term_df.append(term_df_unique)
+    
+    final_df = pd.concat(term_df)
+    print(final_df.info())
 
 
-            # Assign week of the term and day of the week
-            term_df['week_of_the_term'] = term_df['Event Start Times'].apply(lambda x: assign_week_of_term(x, term_start))
-            term_df['day_of_the_week'] = term_df['Event Start Times'].dt.day_name()
+        # # Assign week of the term and day of the week
+        # term_df['week_of_the_term'] = term_df['Event Start Times'].apply(lambda x: assign_week_of_term(x, term_start))
+        # term_df['day_of_the_week'] = term_df['Event Start Times'].dt.day_name()
 
-        # print(term_df['week_of_the_term'])
-        print(term_df.groupby(['week_of_the_term']).size().reset_index(name='event_count'))
-        return term_df
-    return process_term_data(df, "fall")  
+    # print(term_df['week_of_the_term'])
+    # print(term_df.head(0))
+    # print(term_df.info())
+    # print(term_df.groupby(['week_of_the_term']).size())
+    # return term_df
+
     #         # Count events per (week number, day of week)
     #         event_counts = term_df.groupby(['week_of_the_term', 'day_of_week']).size().reset_index(name='event_count')
 
@@ -136,11 +146,12 @@ def eventLoadByWeekOfTheTerm(df=default_df):
     # aggregated_df = pd.concat(aggregated_data).groupby(['week_of_the_term', 'day_of_week']).sum().reset_index()
     # return aggregated_df
 
-
 if __name__ == "__main__":
     df = loadDataTickets()
+    # print(df.info())
+    # print(assign_week_of_term("2025-03-21", "2022-11-16"))
 
-    eventLoadByWeekOfTheTerm(df)
+    eventLoadByWeekOfTheTerm(df, "spring")
     # print(df['Event Start Times'].unique())
     # parseEventStartTimes(df)
 
