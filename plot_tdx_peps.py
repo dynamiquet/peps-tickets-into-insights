@@ -50,21 +50,43 @@ def plotDayByMonth(df):
     plt.ylabel('Month of the Year')
     plt.show()
 
-def plotDayOfTheWeekByWeekOfTheTerm(df):
-    # Ensure the days of the week and weeks of the term are ordered correctly
-    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    weeks_order = sorted(df['week_of_the_term'].unique(), key=lambda x: int(x.split()[1]))
+def plotDayOfTheWeekByWeekOfTheTermYearly(df):
+    terms_years = df['term_year'].unique()
+    for term_year in terms_years:
+        term_df = df[df['term_year'] == term_year]
+        
+        days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        weeks_order = sorted(term_df['week_of_the_term'].unique(), key=lambda x: int(x.split()[1]))
 
-    heatmap_data = df.pivot_table(index='day_of_the_week', columns='week_of_the_term', aggfunc='size', fill_value=0)
-    heatmap_data = heatmap_data.reindex(index=days_order, columns=weeks_order)
+        heatmap_data = term_df.pivot_table(index='day_of_the_week', columns='week_of_the_term', aggfunc='size', fill_value=0)
+        heatmap_data = heatmap_data.reindex(index=days_order, columns=weeks_order)
 
-    plt.figure(figsize=(14, 8))
-    sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
-    plt.title('Heatmap of Event Load by Day of the Week and Week of the Term')
-    plt.ylabel('Day of the Week')
-    plt.gca().invert_yaxis()
-    plt.xlabel('Week of the Term')
-    plt.show()
+        plt.figure(figsize=(14, 8))
+        sns.heatmap(heatmap_data, cmap='Blues', annot=True)
+        plt.title(f'Heatmap of Event Load by Day of the Week and Week of the Term ({term_year})')
+        plt.ylabel('Day of the Week')
+        plt.gca().invert_yaxis()
+        plt.xlabel('Week of the Term')
+        plt.show()
+
+def plotDayOfTheWeekByWeekOfTheTermTotal(df):
+    terms = df['term'].unique()
+    for term in terms:
+        term_df = df[df['term'] == term]
+        
+        days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        weeks_order = sorted(term_df['week_of_the_term'].unique(), key=lambda x: int(x.split()[1]))
+
+        heatmap_data = term_df.pivot_table(index='day_of_the_week', columns='week_of_the_term', aggfunc='size', fill_value=0)
+        heatmap_data = heatmap_data.reindex(index=days_order, columns=weeks_order)
+
+        plt.figure(figsize=(14, 8))
+        sns.heatmap(heatmap_data, cmap='Blues', annot=True)
+        plt.title(f'Heatmap of Event Load by Day of the Week and Week of the Term (Total for {term.capitalize()})')
+        plt.ylabel('Day of the Week')
+        plt.gca().invert_yaxis()
+        plt.xlabel('Week of the Term')
+        plt.show()
 
 if __name__ == "__main__":
     df = loadDataTickets()
@@ -75,7 +97,8 @@ if __name__ == "__main__":
     #### Plotting
 
     df1 = eventLoadByWeekOfTheTerm(df, "fall")
-    plotDayOfTheWeekByWeekOfTheTerm(df1)
+    plotDayOfTheWeekByWeekOfTheTermYearly(df1)
+    plotDayOfTheWeekByWeekOfTheTermTotal(df1)
     
     plotEventLoad(df, "hour")
     plotEventLoad(df, "day")
