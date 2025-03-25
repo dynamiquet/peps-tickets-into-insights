@@ -131,11 +131,28 @@ def plotTopResponsiblePeople(df):
     plt.ylabel('Responsible Person')
     plt.show()
 
+def plotTopLocationsByEventStartTime(df, top_n=15):
+    top_locations = df['Peps Location'].value_counts().head(top_n).index
+    filtered_df = df[df['Peps Location'].isin(top_locations) & df['Peps Location'] != 'Other']
+    
+    bubble_data = filtered_df.groupby(['event_hour', 'Peps Location']).size().reset_index(name='counts')
+    
+    plt.figure(figsize=(20, 8))
+    sns.scatterplot(data=bubble_data, x='event_hour', y='Peps Location', size='counts', hue='Peps Location', palette='viridis', sizes=(0, 500), legend=True, alpha=0.6)
+    plt.title(f'Top {top_n} Locations by Event Start Time')
+    plt.xlabel('Event Start Time (Hour)')
+    plt.ylabel('Location')
+    plt.legend(title='Location', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.show()
+
 if __name__ == "__main__":
     df = loadMergedDataTickets()
+    print(df.info())
     parseEventStartTimes(df)
     orderEventHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
+
+    plotTopLocationsByEventStartTime(df)
 
     #### Plotting 
     # df1 = eventLoadByWeekOfTheTerm(df, "fall")
@@ -149,8 +166,9 @@ if __name__ == "__main__":
 
     # Plotting functions from analyze_tdx_tickets.py
     df_tdx = loadDataTickets()
-    plotTopLocations(df_tdx)
-    plotResolutionTime(df_tdx)
-    plotTopDepartments(df_tdx)
-    plotTopRequestors(df_tdx)
-    plotTopResponsiblePeople(df_tdx)
+    # plotTopLocations(df_tdx)
+    # plotResolutionTime(df_tdx)
+    # plotTopDepartments(df_tdx)
+    # plotTopRequestors(df_tdx)
+    # plotTopResponsiblePeople(df_tdx)
+    
