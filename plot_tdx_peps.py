@@ -5,7 +5,7 @@
 
 import matplotlib.pyplot as plt
 from analyze_tdx_tickets import *
-from analyze_tdx_merged_tickets import *
+from analyze_merged_tdx_tickets import *
 import seaborn as sns
 
 # Plots event load based on time unit ('hour' or 'day').
@@ -94,13 +94,12 @@ if __name__ == "__main__":
     orderEventHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
 
-    #### Plotting
-
-    df1 = eventLoadByWeekOfTheTerm(df, "winter")
-    plotDayOfTheWeekByWeekOfTheTermYearly(df1)
+    #### Plotting 
+    # df1 = eventLoadByWeekOfTheTerm(df, "fall")
+    # plotDayOfTheWeekByWeekOfTheTermYearly(df1)
     # plotDayOfTheWeekByWeekOfTheTermTotal(df1)
     
-    # plotEventLoad(df, "hour")
-    # plotEventLoad(df, "day")
-    # plotDayofTheWeekByHour(df)
-    # plotDayByMonth(df)
+    plotEventLoad(df, "hour")
+    plotEventLoad(df, "day")
+    plotDayofTheWeekByHour(df)
+    plotDayByMonth(df)
