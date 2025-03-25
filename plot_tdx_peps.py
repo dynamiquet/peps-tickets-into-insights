@@ -18,7 +18,7 @@ def plotEventLoad(df, time_unit):
     plt.figure(figsize=(12, 6))
     if time_unit.lower() == 'hour':
         column = 'event_hour'
-        x_label = 'Hour of the Day'
+        # x_label = 'Hour of the Day'
 
     elif time_unit.lower() == 'day':
         column = 'event_day'
@@ -29,7 +29,7 @@ def plotEventLoad(df, time_unit):
 
     sns.countplot(x=column, data=df, color='Gray')
 
-    plt.title(f'Event Load by {x_label}')
+    plt.title(f'Event Load by {x_label} (2022-2025)')
     plt.xlabel(x_label)
     plt.ylabel('Number of Events')
     plt.xticks(plt.xticks()[0][::2]) # Skips one tick
@@ -38,9 +38,9 @@ def plotDayofTheWeekByHour(df):
     heatmap_data = df.pivot_table(index='event_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))
     sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
-    plt.title('Heatmap of Event Load by Hour and Day of the Week')
+    plt.title('Event Load by Hour and Day of the Week (2022-2025)')
     plt.gca().invert_yaxis()
-    plt.ylabel('Hour of the Day')
+    # plt.ylabel('Hour of the Day')
     plt.xlabel('Day of the Week')
     plt.show()
 
@@ -48,7 +48,7 @@ def plotDayByMonth(df):
     heatmap_data = df.pivot_table(index='event_month', columns='event_day', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))
     sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
-    plt.title('Heatmap of Event Load by Day and Month')
+    plt.title('Heatmap of Event Load by Day and Month (2022-2025)')
     plt.gca().invert_yaxis()
     plt.xlabel('Day of the Month')
     plt.ylabel('Month of the Year')
@@ -67,8 +67,9 @@ def plotDayOfTheWeekByWeekOfTheTermYearly(df):
 
         plt.figure(figsize=(14, 8))
         sns.heatmap(heatmap_data, cmap='Blues', annot=True)
-        plt.title(f'Heatmap of Event Load by Day of the Week and Week of the Term ({term_year})')
-        plt.ylabel('Day of the Week')
+        plt.title(f'Event Load by Day of the Week and Week of the Term ({term_year})')
+        plt.ylabel('')
+        plt.yticks(rotation=30)
         plt.gca().invert_yaxis()
         plt.xlabel('Week of the Term')
         plt.show()
@@ -86,8 +87,9 @@ def plotDayOfTheWeekByWeekOfTheTermTotal(df):
 
         plt.figure(figsize=(14, 8))
         sns.heatmap(heatmap_data, cmap='Blues', annot=True)
-        plt.title(f'Heatmap of Event Load by Day of the Week and Week of the Term (Total for {term.capitalize()})')
-        plt.ylabel('Day of the Week')
+        plt.title(f'Event Load by Day of the Week and Week of the Term ({term.capitalize()})')
+        plt.ylabel('')
+        plt.yticks(rotation=30)
         plt.gca().invert_yaxis()
         plt.xlabel('Week of the Term')
         plt.show()
@@ -96,7 +98,7 @@ def plotTopLocations(df):
     top_locations = topLocations(df)
     plt.figure(figsize=(12, 6))
     sns.barplot(x=top_locations.values, y=top_locations.index, palette='viridis')
-    plt.title('Top Locations')
+    plt.title('Top Locations (2022-2025)')
     plt.xlabel('Number of Events')
     plt.ylabel('Location')
     plt.show()
@@ -105,7 +107,7 @@ def plotResolutionTime(df):
     resolution_stats = resolutionTime(df)
     plt.figure(figsize=(12, 6))
     sns.histplot(df['Resolution Time (Days)'].dropna(), bins=30, kde=True, color='blue')
-    plt.title('Resolution Time Distribution')
+    plt.title('Resolution Time Distribution (2022-2025)')
     plt.xlabel('Resolution Time (Days)')
     plt.ylabel('Frequency')
     plt.show()
@@ -114,7 +116,7 @@ def plotTopDepartments(df):
     top_departments = topDepartments(df)
     plt.figure(figsize=(12, 6))
     sns.barplot(x=top_departments.values, y=top_departments.index, palette='viridis')
-    plt.title('Top Departments by Number of Events')
+    plt.title('Top Departments by Number of Events (2022-2025)')
     plt.xlabel('Number of Events')
     plt.ylabel('Department')
     plt.show()
@@ -123,7 +125,7 @@ def plotTopRequestors(df):
     top_requestors = topRequestors(df)
     plt.figure(figsize=(12, 6))
     sns.barplot(x=top_requestors.values, y=top_requestors.index, palette='viridis')
-    plt.title('Top Requestors')
+    plt.title('Top Requestors (2022-2025)')
     plt.xlabel('Number of Events')
     plt.ylabel('Requestor')
     plt.show()
@@ -132,7 +134,7 @@ def plotTopResponsiblePeople(df):
     top_responsible_people = topResponsiblePeople(df)
     plt.figure(figsize=(12, 6))
     sns.barplot(x=top_responsible_people.values, y=top_responsible_people.index, palette='viridis')
-    plt.title('Top Responsible People')
+    plt.title('Top Responsible People (2022-2025)')
     plt.xlabel('Number of Events')
     plt.ylabel('Responsible Person')
     plt.show()
@@ -148,13 +150,17 @@ def plotTopLocationsByEventStartTime(df, top_n=15):
     
     # Plot 
     bubble_data = df[df['Location'].isin(top_locations.index)].groupby(['event_hour', 'Location']).size().reset_index(name='counts')
+
+    for line in range(0, bubble_data.shape[0]):
+        plt.text(bubble_data.event_hour[line], bubble_data.Location[line], bubble_data.counts[line], horizontalalignment='center', size=10, color='black')
     
     plt.figure(figsize=(20, 8))
-    sns.scatterplot(data=bubble_data, x='event_hour', y='Location', size='counts', hue='Location', palette='viridis', sizes=(0, 500), legend=True, alpha=0.6)
-    plt.title(f'{top_n} Most Used Locations')
+    sns.scatterplot(data=bubble_data, x='event_hour', y='Location', size='counts', hue='Location', palette='viridis', sizes=(1, 700), legend=False, alpha=0.6)
+    plt.title(f'{top_n} Most Used Locations (2022-2025)')
+    plt.ylabel('')
     plt.xlabel('Event Start Time')
-    plt.ylabel('Location')
     plt.legend(title='Location', bbox_to_anchor=(1.05, 1), loc='upper left')
+    # plt.yticks(rotation=20)
     plt.xticks(plt.xticks()[0][::2])  # Skips the first 5 ticks on the x-axis
     plt.show()
 
@@ -168,7 +174,7 @@ if __name__ == "__main__":
     plotTopLocationsByEventStartTime(dfd)
 
     #### Plotting 
-    df1 = eventLoadByWeekOfTheTerm(df, "fall")
+    df1 = eventLoadByWeekOfTheTerm(df, "winter")
     plotDayOfTheWeekByWeekOfTheTermYearly(df1)
     plotDayOfTheWeekByWeekOfTheTermTotal(df1)
     
