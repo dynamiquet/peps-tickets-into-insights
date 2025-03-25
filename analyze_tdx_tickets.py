@@ -15,6 +15,7 @@ default_df = loadDataTickets()
 # Identify the most popular locations
 def topLocations(df=default_df, number=30):
     all_locations = pd.concat([df['PEPS Location'], df['Other Location'].dropna()])
+    all_locations = all_locations[all_locations != "Other"]  # Ignore data if the data is "Other"
     combined_locations = all_locations.value_counts().head(number)
     print("\nCombined Top Locations:\n", combined_locations)
     return combined_locations
@@ -49,6 +50,6 @@ if __name__ == "__main__":
     # print(df.info())
     topLocations()
     resolutionTime()
-    # topDepartments()
-    # topRequestors()
-    # topResponsiblePeople() 
+    topDepartments()
+    topRequestors()
+    topResponsiblePeople() 
