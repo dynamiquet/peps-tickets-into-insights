@@ -8,6 +8,12 @@ from analyze_merged_tdx_tickets import *
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+def filter_event_hours_for_plotting(df):
+    hours_of_interest = [
+        "05 AM", "06 AM", "07 AM", "08 AM", "09 AM", "10 AM", "11 AM", "12 PM", "01 PM", "02 PM", "03 PM", "04 PM", "05 PM", "06 PM", "07 PM", "08 PM", "09 PM", "10 PM", "11 PM"
+    ]
+    return df[df['event_hour'].isin(hours_of_interest)]
+
 def plotEventLoad(df, time_unit):
     plt.figure(figsize=(12, 6))
     if time_unit.lower() == 'hour':
@@ -132,43 +138,49 @@ def plotTopResponsiblePeople(df):
     plt.show()
 
 def plotTopLocationsByEventStartTime(df, top_n=15):
-    top_locations = df['Peps Location'].value_counts().head(top_n).index
-    filtered_df = df[df['Peps Location'].isin(top_locations) & df['Peps Location'] != 'Other']
+    # Combine 'Peps Location' and 'Other Location' into one column
+    df['Location'] = df['Peps Location'].where(df['Peps Location'] != "Other", df['Other Location'])
+    df = df.dropna(subset=['Location'])
+
+    print(df.info())
+
+    top_locations = df['Location'].value_counts().head(top_n)
     
-    bubble_data = filtered_df.groupby(['event_hour', 'Peps Location']).size().reset_index(name='counts')
+    # Plot 
+    bubble_data = df[df['Location'].isin(top_locations.index)].groupby(['event_hour', 'Location']).size().reset_index(name='counts')
     
     plt.figure(figsize=(20, 8))
-    sns.scatterplot(data=bubble_data, x='event_hour', y='Peps Location', size='counts', hue='Peps Location', palette='viridis', sizes=(0, 500), legend=True, alpha=0.6)
-    plt.title(f'Top {top_n} Locations by Event Start Time')
-    plt.xlabel('Event Start Time (Hour)')
+    sns.scatterplot(data=bubble_data, x='event_hour', y='Location', size='counts', hue='Location', palette='viridis', sizes=(0, 500), legend=True, alpha=0.6)
+    plt.title(f'{top_n} Most Used Locations')
+    plt.xlabel('Event Start Time')
     plt.ylabel('Location')
     plt.legend(title='Location', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.xticks(plt.xticks()[0][::2])  # Skips the first 5 ticks on the x-axis
     plt.show()
 
 if __name__ == "__main__":
     df = loadMergedDataTickets()
-    print(df.info())
     parseEventStartTimes(df)
     orderEventHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
+    dfd = filter_event_hours_for_plotting(df)
 
-    plotTopLocationsByEventStartTime(df)
+    plotTopLocationsByEventStartTime(dfd)
 
     #### Plotting 
-    # df1 = eventLoadByWeekOfTheTerm(df, "fall")
-    # plotDayOfTheWeekByWeekOfTheTermYearly(df1)
-    # plotDayOfTheWeekByWeekOfTheTermTotal(df1)
+    df1 = eventLoadByWeekOfTheTerm(df, "fall")
+    plotDayOfTheWeekByWeekOfTheTermYearly(df1)
+    plotDayOfTheWeekByWeekOfTheTermTotal(df1)
     
-    # plotEventLoad(df, "hour")
-    # plotEventLoad(df, "day")
-    # plotDayofTheWeekByHour(df)
-    # plotDayByMonth(df)
+    plotEventLoad(df, "hour")
+    plotEventLoad(df, "day")
+    plotDayofTheWeekByHour(df)
+    plotDayByMonth(df)
 
-    # Plotting functions from analyze_tdx_tickets.py
-    df_tdx = loadDataTickets()
-    # plotTopLocations(df_tdx)
-    # plotResolutionTime(df_tdx)
-    # plotTopDepartments(df_tdx)
-    # plotTopRequestors(df_tdx)
-    # plotTopResponsiblePeople(df_tdx)
+    # Plotting functions from analyze_tdx_tickets.py (Do not involve time )
+    # # df2 = loadDataTickets()
+    # # plotResolutionTime(df2)
+    # # plotTopDepartments(df2)
+    # # plotTopRequestors(df2)
+    # # plotTopResponsiblePeople(df2)
     

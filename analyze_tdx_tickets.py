@@ -17,6 +17,7 @@ def topLocations(df=default_df, number=10):
     combined_locations = df['PEPS Location'].mask(df['PEPS Location'] == "Other", df['Other Location'])
     combined_locations = combined_locations.dropna()
 
+    print(df.info())
     top_locations = combined_locations.value_counts().head(number)
     print("\nCombined Top Locations:\n", top_locations)
     return top_locations
