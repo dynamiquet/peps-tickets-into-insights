@@ -1,14 +1,14 @@
 # Author: Dynamique '27
 # Organization: DataSquad
 # Description: This script is used to plot the output of the functions in both "analy_tdx_peps.py" and "Compare_StartTime_to_Created.py"
-# Last Successfully ran: 2025/02/26
+# Last Successfully ran: 2025/02/26 
 
-import matplotlib.pyplot as plt
 from analyze_tdx_tickets import *
 from analyze_merged_tdx_tickets import *
+import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Plots event load based on time unit ('hour' or 'day').
+
 def plotEventLoad(df, time_unit):
     plt.figure(figsize=(12, 6))
     
@@ -89,7 +89,7 @@ def plotDayOfTheWeekByWeekOfTheTermTotal(df):
         plt.show()
 
 if __name__ == "__main__":
-    df = loadDataTickets()
+    df = loadMergedDataTickets()
     parseEventStartTimes(df)
     orderEventHoursLogically(df)
     orderDaysOfTheWeekLogically(df)

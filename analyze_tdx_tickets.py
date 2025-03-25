@@ -6,55 +6,49 @@
 import pandas as pd
 
 # Load the dataset
-def loadMergedDataTickets():
+def loadDataTickets():
     file_path = "Data/TDX_Peps_Tickets_Report_January.csv"  
     df = pd.read_csv(file_path, parse_dates=['Created', 'Resolved Date'])
     return df
-default_df = loadMergedDataTickets()
+default_df = loadDataTickets()
 
-# 1. Identify the most popular locations
-def topLocations(df=default_df, number=5):
-    popular_locations = df['PEPS Location'].value_counts().head(number)
-    print("Most Popular Locations:\n", popular_locations)
-    return popular_locations
+# Identify the most popular locations
+def topLocations(df=default_df, number=30):
+    all_locations = pd.concat([df['PEPS Location'], df['Other Location'].dropna()])
+    combined_locations = all_locations.value_counts().head(number)
+    print("\nCombined Top Locations:\n", combined_locations)
+    return combined_locations
 
-# 2. Identify the most popular other locations
-def topOtherLocations(df=default_df, number=5):
-    popular_other_locations = df['Other Location'].dropna().value_counts().head(number)
-    print("\nMost Popular Other Locations:\n", popular_other_locations)
-    return popular_other_locations
-
-# 3. Compare created date vs resolved date
+# Compare created date vs resolved date
 def resolutionTime(df=default_df): # Not really needed?
     df['Resolution Time (Days)'] = (df['Resolved Date'] - df['Created']).dt.days
     resolution_stats = df['Resolution Time (Days)'].describe()
     print("\nResolution Time Statistics:\n", resolution_stats)
     return resolution_stats
 
-# 4. Identify the top 5 departments that request the most events
+# Identify the top 5 departments that request the most events
 def topDepartments(df=default_df, number=5):
     top_departments = df['Acct/Dept'].value_counts().head(number)
     print("\nTop 5 Departments by Number of Events:\n", top_departments)
     return top_departments
 
-# 5. Identify the top 5 requestors
+# Identify the top 5 requestors
 def topRequestors(df=default_df, number=5):
     top_requestors = df['Requestor'].value_counts().head(number)
     print("\nTop 5 Requestors:\n", top_requestors)
     return top_requestors
 
-# 6. Identify the top 10 people responsible for events
+# Identify the top 10 people responsible for events
 def topResponsiblePeople(df=default_df, number=5):
     top_responsible_people = df['Responsibility'].value_counts().head(number)
     print("\nTop 10 People Responsible for Events:\n", top_responsible_people)
     return top_responsible_people
 
-
 if __name__ == "__main__":
-    df = loadMergedDataTickets()
+    df = loadDataTickets()
+    # print(df.info())
     topLocations()
-    topOtherLocations()
     resolutionTime()
-    topDepartments()
-    topRequestors()
-    topResponsiblePeople() 
+    # topDepartments()
+    # topRequestors()
+    # topResponsiblePeople() 
