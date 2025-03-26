@@ -23,11 +23,11 @@ def topLocations(df=default_df, number=10):
     return top_locations
 
 # Compare created date vs resolved date
-def resolutionTime(df=default_df): # Not really needed?
-    df['Resolution Time (Days)'] = (df['Resolved Date'] - df['Created']).dt.days
-    resolution_stats = df['Resolution Time (Days)'].describe()
-    print("\nResolution Time Statistics:\n", resolution_stats)
-    return resolution_stats
+# def resolutionTime(df=default_df): # Not really needed?
+#     df['Resolution Time (Days)'] = (df['Resolved Date'] - df['Created']).dt.days
+#     resolution_stats = df['Resolution Time (Days)'].describe()
+#     print("\nResolution Time Statistics:\n", resolution_stats)
+#     return resolution_stats
 
 # Identify the top 5 departments that request the most events
 def topDepartments(df=default_df, number=5):
