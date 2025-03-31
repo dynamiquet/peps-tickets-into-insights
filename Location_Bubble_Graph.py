@@ -1,26 +1,19 @@
 # Author: Auiannce Euwing '26
 # Organization: DataSquad
-# Description: This code creates a Bubble Graph where the y-axis is time and the x-axis is locations 
+# Description: This code creates a Bubble Graph where the y-axis is time and the x-axis is locations
 # Last Successfully ran: 2025/03/06
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib
-import re
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib
+import numpy as np
 import re
 
-# Force Matplotlib to use a non-interactive backend for PNG output
-matplotlib.use("Agg")
 
-# Load the CSV file
+# Load the dataset
 file_path = "Data/Data-PEPS-TDX Tickets - Merged Report.csv"
+df = pd.read_csv(file_path, dtype=str)  # Load as string to preserve formatting
 
-# Read CSV without parsing dates initially
-df = pd.read_csv(file_path)
 
 # Column names
 peps_column = "Peps Location"
@@ -28,72 +21,98 @@ other_column = "Other Location"
 event_type_column = "Peps Event Types"
 time_column = "Event Start Times"
 
-# Replace "Other" values in Peps Locations with the corresponding values from Other Location
-df[peps_column] = df.apply(lambda row: row[other_column] if row[peps_column] == "Other" else row[peps_column], axis=1)
 
-# Rename Peps Location to Event Room for clarity
-df.rename(columns={peps_column: "Event Room"}, inplace=True)
+# Function to extract the first 3 letters from a location name
+def extract_building_code(location):
+   return str(location)[:3].upper() if pd.notnull(location) else "UNK"  # "UNK" for unknown locations
 
-# Count the occurrences of each location
-location_counts = df["Event Room"].value_counts()
 
-# Get the top 10 most popular locations
-top_10_locations = location_counts.head(10).index.tolist()
+# Create a new "Building" column combining "Peps Location" and "Other Location"
+df["Building"] = df[peps_column].apply(extract_building_code)
+df.loc[df[peps_column] == "Other", "Building"] = df[other_column].apply(extract_building_code)
 
-# Filter the dataframe to only include events at the top 10 locations
-df = df[df["Event Room"].isin(top_10_locations)]
 
-# Convert event start times to datetime format
-df[time_column] = pd.to_datetime(df[time_column], errors="coerce")
+# Function to clean timestamps (removes timezone information)
+def clean_timestamp(timestamp):
+   match = re.search(r"([A-Za-z]{3} \w{3} \d{1,2} \d{4} \d{2}:\d{2}:\d{2})", str(timestamp))
+   return match.group(1) if match else None
 
-# Drop rows with missing values in key columns
-df = df.dropna(subset=["Event Room", event_type_column, time_column])
 
-# Convert event time to numerical format (hour of the day)
-df["Event Hour"] = df[time_column].dt.hour.astype(int)
+# Apply cleaning function
+df["Cleaned Event Start Times"] = df[time_column].apply(clean_timestamp)
 
-# Group data by event type, event hour, and event room, counting occurrences
-event_counts = df.groupby([event_type_column, "Event Hour", "Event Room"]).size().reset_index(name="Event Count")
 
-# Assign unique colors to each event room
-unique_rooms = event_counts["Event Room"].unique()
-room_colors = {room: plt.cm.get_cmap("tab10")(i) for i, room in enumerate(unique_rooms)}
+# Convert to datetime format
+df["Parsed Event Start Times"] = pd.to_datetime(df["Cleaned Event Start Times"], errors="coerce")
 
-# Remove all previous figures to prevent overlay issues
-plt.close("all")
 
-# Create a clean figure
-fig, ax = plt.subplots(figsize=(14, 8))
+# Drop rows with invalid dates
+df = df.dropna(subset=["Parsed Event Start Times", "Building", event_type_column])
 
-# Create the bubble chart
-scatter = ax.scatter(
-    event_counts[event_type_column],
-    event_counts["Event Hour"],
-    s=event_counts["Event Count"] * 60,  # Increase bubble size for better visibility
-    c=[room_colors[room] for room in event_counts["Event Room"]],
-    alpha=1.0, 
-    edgecolors="none"
+
+# Extract event hour
+df["Event Hour"] = df["Parsed Event Start Times"].dt.hour.astype(int)
+
+
+# Adjust event start times: Shift 1-8 AM to 13-20 PM
+df["Adjusted Event Hour"] = df["Event Hour"].apply(lambda x: x + 12 if 1 <= x <= 8 else x)
+
+
+# Apply jitter for better visualization
+df["Jittered Time"] = df["Adjusted Event Hour"] + np.random.uniform(-0.3, 0.3, size=len(df))
+
+
+# Count occurrences of each building
+building_counts = df["Building"].value_counts()
+
+
+# Assign unique colors to event types
+event_types = df[event_type_column].unique()
+event_colors = {event: plt.cm.get_cmap("tab10")(i % 10) for i, event in enumerate(event_types)}
+
+
+# Compute bubble sizes based on event count per building
+df["Bubble Size"] = df["Building"].map(lambda x: building_counts[x] * 10)
+
+
+# Create bubble chart
+plt.figure(figsize=(14, 8))
+scatter = plt.scatter(
+   df["Jittered Time"],  # X-axis: Adjusted event time with jitter
+   df["Building"],  # Y-axis: Building code
+   s=df["Bubble Size"],  # Bubble size based on event count
+   c=[event_colors[event] for event in df[event_type_column]],  # Color by event type
+   alpha=0.7,
+   edgecolors="k"
 )
 
-# Create a legend for event rooms at the bottom
+
+# Create legend for event types
 legend_handles = [
-    plt.Line2D([0], [0], marker="o", color="w", markerfacecolor=room_colors[room], markersize=10) for room in unique_rooms
+   plt.Line2D([0], [0], marker="o", color="w", markerfacecolor=event_colors[event], markersize=10)
+   for event in event_types
 ]
-ax.legend(legend_handles, unique_rooms, title="Event Room", loc="lower center", bbox_to_anchor=(0.5, -0.2), ncol=5)
+plt.legend(legend_handles, event_types, title="Event Type", loc="upper right")
+
 
 # Labels and title
-ax.set_xlabel("Event Type", fontsize=12)
-ax.set_ylabel("Time of Event (Hour)", fontsize=12)
-ax.set_title("Bubble Chart of Events for Top 10 Locations", fontsize=14)
+plt.xlabel("Time of Event (Hour)")
+plt.ylabel("Building")
+plt.title("Event Distribution by Building and Time (Bubble Chart)")
 
-# Improve readability of X-axis
-ax.set_xticklabels(event_counts[event_type_column].unique(), rotation=55, ha="right", fontsize=10)
-ax.set_yticks(range(0, 24, 2))  # Show every 2 hours instead of every hour
-ax.grid(True, linestyle="--", alpha=0.6)
 
-# Save the figure as a PNG file
-output_path = "bubble_chart_top10_locations.png"
-plt.savefig(output_path, dpi=300, bbox_inches="tight")  # High-quality output
+# Adjust x-axis ticks
+plt.xticks(range(0, 25, 1), [f"{h}:00" for h in range(0, 25)])  # Show every hour
 
-# Print confirmation
-print(f"Bubble chart saved as {output_path}")
+
+# Show grid
+plt.grid(True, linestyle="--", alpha=0.6)
+
+
+# Save the plot as PNG
+output_path = "building_event_bubble_chart.png"
+plt.savefig(output_path, dpi=300, bbox_inches="tight")  # High-resolution image
+
+
+# Display message
+print(f"Plot saved as {output_path}")
