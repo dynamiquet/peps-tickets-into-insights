@@ -1,7 +1,7 @@
 # Author: Auiannce Euwing '26, Dynamique Twizere '27
 # Organization: DataSquad
 # Description: This code contains functions that analyze the TDX tickets data from "Data-PEPS-TDX Tickets - Merged Report.csv" and returns the top departments by time difference between 'Event Start Times' and 'Created', the load by hour, and the load by day.
-# Last Successfully ran: 2025/03/19
+# Last Successfully ran: 2025/04/08
 
 import pandas as pd
 import re
@@ -143,6 +143,37 @@ def eventLoadByWeekOfTheTerm(df=default_df, term=default_term):
     term_df = pd.concat(term_df_list)
     print(term_df.info())
     return term_df
+def describeTopDepartmentsByTimeDiff(df=default_df, number=20):
+    excluded_departments = {
+        "Information Technology Services",
+        "Alumni Relations",
+        "Student Activities"
+    }
+
+    df = df[~df['Acct/Dept'].isin(excluded_departments)].copy()
+
+    df['Time Difference (Days)'] = (df['Event Start Times'] - df['Created']).dt.total_seconds() / 86400.0
+    df['Time Difference (Days)'] = df['Time Difference (Days)'].round(1)
+
+    # Calculate average time difference per department
+    dept_avg_diff = (
+        df.groupby('Acct/Dept')['Time Difference (Days)']
+        .mean()
+        .sort_values(key=lambda x: x.abs())  # Sort by closeness to event (abs value)
+        .head(number)
+    )
+
+    for dept, avg_days in dept_avg_diff.items():
+        if avg_days == 0.0:
+            print(f"{dept}  generally creates events on the same day they start.")
+        elif avg_days > 0:
+            print(f"{dept} typically creates events about {avg_days:.1f} days before they start.")
+        else:
+            print(f"{dept}  typically creates events about {abs(avg_days):.1f} days after they start.")
+
+    return dept_avg_diff
+
+
 
 if __name__ == "__main__":
     df = loadMergedDataTickets()
@@ -152,9 +183,10 @@ if __name__ == "__main__":
     # print(assign_week_of_term("2025-03-21", "2022-11-16"))
 
     # eventLoadByWeekOfTheTerm(df, "spring")
-    # print(df['Event Start Times'].unique())
+#print(df['Event Start Times'].unique())
     
     # eventLoadByDayofTheWeek()
     # eventLoadByHour()
     # eventLoadByDayofTheMonth() 
     # topDepartmentsByTimeDifference(df)
+    describeTopDepartmentsByTimeDiff(df) 
