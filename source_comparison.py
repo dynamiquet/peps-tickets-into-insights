@@ -47,6 +47,6 @@ plt.tight_layout()
 
 
 # Save and show
-plt.savefig("ticket_sources_bar_chart.png", dpi=300, bbox_inches="tight")
-plt.show()
-print("\n✅ Ticket source chart saved as ticket_sources_bar_chart.png")
+#plt.savefig("ticket_sources_bar_chart.png", dpi=300, bbox_inches="tight")
+#plt.show()
+#print("\n✅ Ticket source chart saved as ticket_sources_bar_chart.png")

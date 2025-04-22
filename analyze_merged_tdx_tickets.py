@@ -189,4 +189,4 @@ if __name__ == "__main__":
     # eventLoadByHour()
     # eventLoadByDayofTheMonth() 
     # topDepartmentsByTimeDifference(df)
-    describeTopDepartmentsByTimeDiff(df) 
+    #describeTopDepartmentsByTimeDiff(df) 
