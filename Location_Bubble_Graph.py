@@ -6,6 +6,7 @@
 # A custom legend illustrates the mapping from bubble size to event count.
 # Last successfully executed on: 2025/04/21
 
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -62,32 +63,55 @@ grouped = df_top.groupby(["Building", "Hour", "Time Label"]).size().reset_index(
 grouped = grouped.sort_values("Hour")
 
 # === Plot ===
-plt.figure(figsize=(16, 10))
-scatter = plt.scatter(
-    grouped["Time Label"], grouped["Building"],
-    s=grouped["Event Count"] * 10,  
-    c=grouped["Event Count"], cmap="viridis", alpha=0.75, edgecolors="k"
-)
-plt.colorbar(scatter, label="Number of Events")
+fig, ax = plt.subplots(figsize=(16, 10))
 
-# Updated bubble size legend
-legend_sizes = [5, 10, 15, 20, 25]
+# Moderate size scaling for visible differences
+size_base = 35
+sizes = size_base * grouped["Event Count"] ** 1.4
+
+scatter = ax.scatter(
+    grouped["Time Label"], grouped["Building"],
+    s=sizes,
+    c=grouped["Event Count"],
+    cmap="Blues",
+    alpha=0.85,
+    edgecolors="k"
+)
+
+# Horizontal color bar
+cbar = plt.colorbar(scatter, orientation="horizontal", pad=0.15, aspect=40)
+cbar.set_label("Number of Events")
+
+# Legend entries: 5, 10, 15, 20+
+legend_event_counts = [5, 10, 15, 20]
+legend_sizes = [size_base * count ** 1.4 for count in legend_event_counts]
+legend_labels = [f"{count} Events" for count in legend_event_counts[:-1]] + ["20+ Events"]
+
 legend_handles = [
-    plt.scatter([], [], s=size*10, edgecolors='k', facecolors='gray', alpha=0.7, label=f"{size} Events")
-    for size in legend_sizes
+    plt.scatter([], [], s=size, edgecolors='k', facecolors='lightblue', alpha=0.7, label=label)
+    for size, label in zip(legend_sizes, legend_labels)
 ]
-plt.legend(
+ax.legend(
     handles=legend_handles,
     title="Bubble Size Legend",
-    loc="upper right",
-    frameon=True
+    bbox_to_anchor=(1.17, 0.5),
+    loc="center left",
+    frameon=True,
+    borderpad=2.0,
+    labelspacing=2.2,
+    handletextpad=2.5
 )
 
-plt.title("Bubble Graph: Event Time vs. Location", fontsize=16)
-plt.xlabel("Time of Day", fontsize=12)
-plt.ylabel("Building", fontsize=12)
+# Titles, labels, grid
+ax.set_title("Bubble Graph: Event Time vs. Location", fontsize=16)
+ax.set_xlabel("Time of Day", fontsize=12)
+ax.set_ylabel("Building", fontsize=12)
 plt.xticks(rotation=45)
-plt.grid(True, linestyle="--", alpha=0.6)
+ax.grid(True, linestyle="--", alpha=0.6)
+
 plt.tight_layout()
-plt.savefig("bubble_graph_time_vs_location.png", dpi=300)
+plt.savefig("bubble_graph_time_vs_location_better_sizes.png", dpi=300)
 plt.show()
+
+
+
