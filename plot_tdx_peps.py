@@ -9,23 +9,6 @@ from analyze_tdx_tasks import *
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def addTaskTimingInfo(df):
-    # Add columns for day type and business hours
-    df['day_type'] = df['Task Due'].dt.day_name().apply(
-        lambda x: 'Weekend' if x in ['Saturday', 'Sunday'] else 'Weekday'
-    )
-    df['business_hours'] = df['Task Due'].dt.hour.apply(
-        lambda x: 'Business Hours' if 9 <= x < 17 else 'Non-Business Hours'
-    )
-
-    # Count tasks by day type
-    day_type_counts = df['day_type'].value_counts()
-
-    # Count tasks by business hours
-    business_hours_counts = df['business_hours'].value_counts()
-
-    return day_type_counts, business_hours_counts
-
 def plotTaskLoad(df, time_unit):
     plt.figure(figsize=(12, 6))
     if time_unit.lower() == 'hour':
@@ -47,9 +30,7 @@ def plotTaskLoad(df, time_unit):
     plt.xticks(plt.xticks()[0][::2]) # Skips one tick
     plt.show()
 
-def plotTaskLoadWithTimingInfo(df, time_unit):
-    day_type_counts, business_hours_counts = addTaskTimingInfo(df)
-
+def plotTaskLoad(df, time_unit):
     plt.figure(figsize=(12, 6))
     if time_unit.lower() == 'hour':
         column = 'task_hour'
@@ -70,17 +51,6 @@ def plotTaskLoadWithTimingInfo(df, time_unit):
     plt.xticks(plt.xticks()[0][::2])  # Skips one tick
     plt.show()
 
-    # Print timing information
-    print(f"{'Day Type':<15} {'Number of Tasks':>20}")
-    print("=" * 35)
-    for day_type, count in day_type_counts.items():
-        print(f"{day_type:<15} {count:>20}")
-
-    print("\n")
-    print(f"{'Time Period':<20} {'Number of Tasks':>20}")
-    print("=" * 40)
-    for period, count in business_hours_counts.items():
-        print(f"{period:<20} {count:>20}")
 
 def plotDayofTheWeekByHour(df):
     heatmap_data = df.pivot_table(index='task_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
@@ -92,9 +62,7 @@ def plotDayofTheWeekByHour(df):
     plt.ylabel('Hour of the Day', fontsize=14, fontweight='bold')
     plt.show()
 
-def plotDayofTheWeekByHourWithTimingInfo(df):
-    day_type_counts, business_hours_counts = addTaskTimingInfo(df)
-
+def plotDayofTheWeekByHour(df):
     heatmap_data = df.pivot_table(index='task_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))
     sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
@@ -103,18 +71,6 @@ def plotDayofTheWeekByHourWithTimingInfo(df):
     plt.xlabel('Day of the Week', fontsize=14, fontweight='bold')
     plt.ylabel('Hour of the Day', fontsize=14, fontweight='bold')
     plt.show()
-
-    # Print timing information
-    print(f"{'Day Type':<15} {'Number of Tasks':>20}")
-    print("=" * 35)
-    for day_type, count in day_type_counts.items():
-        print(f"{day_type:<15} {count:>20}")
-
-    print("\n")
-    print(f"{'Time Period':<20} {'Number of Tasks':>20}")
-    print("=" * 40)
-    for period, count in business_hours_counts.items():
-        print(f"{period:<20} {count:>20}")
 
 def plotDayByMonth(df):
     heatmap_data = df.pivot_table(index='task_day', columns='task_month_name', aggfunc='size', fill_value=0)
@@ -128,9 +84,7 @@ def plotDayByMonth(df):
     plt.yticks(rotation=0)  # Ensures the numbers on the y-axis are written in a normal direction facing up
     plt.show()
 
-def plotDayByMonthWithTimingInfo(df):
-    day_type_counts, business_hours_counts = addTaskTimingInfo(df)
-
+def plotDayByMonth(df):
     heatmap_data = df.pivot_table(index='task_day', columns='task_month_name', aggfunc='size', fill_value=0)
     heatmap_data.index = heatmap_data.index.astype(int)
     plt.figure(figsize=(14, 8))
@@ -141,18 +95,6 @@ def plotDayByMonthWithTimingInfo(df):
     plt.ylabel('Day of the Month', fontsize=14, fontweight='bold')
     plt.yticks(rotation=0)  # Ensures the numbers on the y-axis are written in a normal direction facing up
     plt.show()
-
-    # Print timing information
-    print(f"{'Day Type':<15} {'Number of Tasks':>20}")
-    print("=" * 35)
-    for day_type, count in day_type_counts.items():
-        print(f"{day_type:<15} {count:>20}")
-
-    print("\n")
-    print(f"{'Time Period':<20} {'Number of Tasks':>20}")
-    print("=" * 40)
-    for period, count in business_hours_counts.items():
-        print(f"{period:<20} {count:>20}")
 
 def plotDayOfTheWeekByWeekOfTheTermYearly(df):
     terms_years = df['term_year'].unique()
@@ -282,7 +224,7 @@ def parseEventStartTimes(df=default_df):
     df['day_of_the_week'] = df['Event Start Times'].dt.day_name()
 
 if __name__ == "__main__":
-    df = loadTasks()
+    df = loadTasks("media")
     parseTaskStartTimes(df)
     orderTaskHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
@@ -293,10 +235,10 @@ if __name__ == "__main__":
     plotDayOfTheWeekByWeekOfTheTermTotal(df1)
     
     # Enhanced plotting with timing information
-    plotTaskLoadWithTimingInfo(df, "hour")
-    plotTaskLoadWithTimingInfo(df, "day")
-    plotDayofTheWeekByHourWithTimingInfo(df)
-    plotDayByMonthWithTimingInfo(df)
+    plotTaskLoad(df, "hour")
+    plotTaskLoad(df, "day")
+    plotDayofTheWeekByHour(df)
+    plotDayByMonth(df)
 
     df2 = loadMergedDataTickets()
     parseEventStartTimes(df2)
