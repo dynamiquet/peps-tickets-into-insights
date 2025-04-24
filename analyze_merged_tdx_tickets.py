@@ -8,6 +8,9 @@ import re
 from dateutil import parser
 import heapq
 
+#  THIS FILE IS PRETTY MUCH IS PRETTY MUCH NOT USED ANYMORE SINCE MATT (THE CLIENT) REQUESTED THAT WE USE TASKS INSTEAD OF TICKETS. SO, NOW WE ARE USING THE 'analyze_tdx_tasks.py' FILE TO DO ALL THE ANALYSES. OTHER TICKET ANALYSES ARE IN 'analyze_tdx_tickets.py'
+
+
 # Load the CSV file
 def loadMergedDataTickets():
     df = pd.read_csv("Data/Data-PEPS-TDX Tickets - Merged Report.csv")

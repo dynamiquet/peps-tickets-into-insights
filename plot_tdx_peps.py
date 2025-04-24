@@ -1,21 +1,39 @@
 # Author: Dynamique '27
 # Organization: DataSquad
-# Description: This script is used to plot the output of the functions in both "analy_tdx_peps.py" and "Compare_StartTime_to_Created.py"
-# Last Successfully ran: 2025/02/26 
+# Description: This script is used to plot the output of the functions in both "analyze_tdx_tasks.py", and "analyze_tdx_tickets.py"
+
 
 from analyze_tdx_tickets import *
 from analyze_merged_tdx_tickets import *
+from analyze_tdx_tasks import *
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def plotEventLoad(df, time_unit):
+def addTaskTimingInfo(df):
+    # Add columns for day type and business hours
+    df['day_type'] = df['Task Due'].dt.day_name().apply(
+        lambda x: 'Weekend' if x in ['Saturday', 'Sunday'] else 'Weekday'
+    )
+    df['business_hours'] = df['Task Due'].dt.hour.apply(
+        lambda x: 'Business Hours' if 9 <= x < 17 else 'Non-Business Hours'
+    )
+
+    # Count tasks by day type
+    day_type_counts = df['day_type'].value_counts()
+
+    # Count tasks by business hours
+    business_hours_counts = df['business_hours'].value_counts()
+
+    return day_type_counts, business_hours_counts
+
+def plotTaskLoad(df, time_unit):
     plt.figure(figsize=(12, 6))
     if time_unit.lower() == 'hour':
-        column = 'event_hour'
+        column = 'task_hour'
         x_label = 'Hour of the Day'
 
     elif time_unit.lower() == 'day':
-        column = 'event_day'
+        column = 'task_day'
         x_label = 'Day of the Month'
 
     else:
@@ -23,31 +41,118 @@ def plotEventLoad(df, time_unit):
 
     sns.countplot(x=column, data=df, color='#0b84e0')
 
-    plt.title(f'Event Load by {x_label} (2022-2025)', fontsize=16, fontweight='bold')
+    plt.title(f'Task Load by {x_label} (2022-2025)', fontsize=16, fontweight='bold')
     plt.xlabel(x_label, fontsize=14, fontweight='bold')
-    plt.ylabel('Number of Events', fontsize=14, fontweight='bold')
+    plt.ylabel('Number of Tasks', fontsize=14, fontweight='bold')
     plt.xticks(plt.xticks()[0][::2]) # Skips one tick
     plt.show()
-    
+
+def plotTaskLoadWithTimingInfo(df, time_unit):
+    day_type_counts, business_hours_counts = addTaskTimingInfo(df)
+
+    plt.figure(figsize=(12, 6))
+    if time_unit.lower() == 'hour':
+        column = 'task_hour'
+        x_label = 'Hour of the Day'
+
+    elif time_unit.lower() == 'day':
+        column = 'task_day'
+        x_label = 'Day of the Month'
+
+    else:
+        raise ValueError("Invalid time_unit. Use 'hour' or 'day'.")
+
+    sns.countplot(x=column, data=df, color='#0b84e0')
+
+    plt.title(f'Task Load by {x_label} (2022-2025)', fontsize=16, fontweight='bold')
+    plt.xlabel(x_label, fontsize=14, fontweight='bold')
+    plt.ylabel('Number of Tasks', fontsize=14, fontweight='bold')
+    plt.xticks(plt.xticks()[0][::2])  # Skips one tick
+    plt.show()
+
+    # Print timing information
+    print(f"{'Day Type':<15} {'Number of Tasks':>20}")
+    print("=" * 35)
+    for day_type, count in day_type_counts.items():
+        print(f"{day_type:<15} {count:>20}")
+
+    print("\n")
+    print(f"{'Time Period':<20} {'Number of Tasks':>20}")
+    print("=" * 40)
+    for period, count in business_hours_counts.items():
+        print(f"{period:<20} {count:>20}")
+
 def plotDayofTheWeekByHour(df):
-    heatmap_data = df.pivot_table(index='event_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
+    heatmap_data = df.pivot_table(index='task_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))
     sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
-    plt.title('Event Load by Hour and Day of the Week (2022-2025)', fontsize=16, fontweight='bold')
+    plt.title('Task Load by Hour and Day of the Week (2022-2025)', fontsize=16, fontweight='bold')
     plt.gca().invert_yaxis()
     plt.xlabel('Day of the Week', fontsize=14, fontweight='bold')
     plt.ylabel('Hour of the Day', fontsize=14, fontweight='bold')
     plt.show()
 
-def plotDayByMonth(df):
-    heatmap_data = df.pivot_table(index='event_month', columns='event_day', aggfunc='size', fill_value=0)
+def plotDayofTheWeekByHourWithTimingInfo(df):
+    day_type_counts, business_hours_counts = addTaskTimingInfo(df)
+
+    heatmap_data = df.pivot_table(index='task_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))
     sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
-    plt.title('Event Load by Day and Month (2022-2025)', fontsize=16, fontweight='bold')
+    plt.title('Task Load by Hour and Day of the Week (2022-2025)', fontsize=16, fontweight='bold')
     plt.gca().invert_yaxis()
-    plt.xlabel('Day of the Month', fontsize=14, fontweight='bold')
-    plt.ylabel('Month of the Year', fontsize=14, fontweight='bold')
+    plt.xlabel('Day of the Week', fontsize=14, fontweight='bold')
+    plt.ylabel('Hour of the Day', fontsize=14, fontweight='bold')
     plt.show()
+
+    # Print timing information
+    print(f"{'Day Type':<15} {'Number of Tasks':>20}")
+    print("=" * 35)
+    for day_type, count in day_type_counts.items():
+        print(f"{day_type:<15} {count:>20}")
+
+    print("\n")
+    print(f"{'Time Period':<20} {'Number of Tasks':>20}")
+    print("=" * 40)
+    for period, count in business_hours_counts.items():
+        print(f"{period:<20} {count:>20}")
+
+def plotDayByMonth(df):
+    heatmap_data = df.pivot_table(index='task_day', columns='task_month_name', aggfunc='size', fill_value=0)
+    heatmap_data.index = heatmap_data.index.astype(int)
+    plt.figure(figsize=(14, 8))
+    sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
+    plt.title('Task Load by Month and Day (2022-2025)', fontsize=16, fontweight='bold')
+    plt.gca().invert_yaxis()
+    plt.xlabel('Month of the Year', fontsize=14, fontweight='bold')
+    plt.ylabel('Day of the Month', fontsize=14, fontweight='bold')
+    plt.yticks(rotation=0)  # Ensures the numbers on the y-axis are written in a normal direction facing up
+    plt.show()
+
+def plotDayByMonthWithTimingInfo(df):
+    day_type_counts, business_hours_counts = addTaskTimingInfo(df)
+
+    heatmap_data = df.pivot_table(index='task_day', columns='task_month_name', aggfunc='size', fill_value=0)
+    heatmap_data.index = heatmap_data.index.astype(int)
+    plt.figure(figsize=(14, 8))
+    sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
+    plt.title('Task Load by Month and Day (2022-2025)', fontsize=16, fontweight='bold')
+    plt.gca().invert_yaxis()
+    plt.xlabel('Month of the Year', fontsize=14, fontweight='bold')
+    plt.ylabel('Day of the Month', fontsize=14, fontweight='bold')
+    plt.yticks(rotation=0)  # Ensures the numbers on the y-axis are written in a normal direction facing up
+    plt.show()
+
+    # Print timing information
+    print(f"{'Day Type':<15} {'Number of Tasks':>20}")
+    print("=" * 35)
+    for day_type, count in day_type_counts.items():
+        print(f"{day_type:<15} {count:>20}")
+
+    print("\n")
+    print(f"{'Time Period':<20} {'Number of Tasks':>20}")
+    print("=" * 40)
+    for period, count in business_hours_counts.items():
+        print(f"{period:<20} {count:>20}")
 
 def plotDayOfTheWeekByWeekOfTheTermYearly(df):
     terms_years = df['term_year'].unique()
@@ -62,7 +167,7 @@ def plotDayOfTheWeekByWeekOfTheTermYearly(df):
 
         plt.figure(figsize=(14, 8))
         sns.heatmap(heatmap_data, cmap='Blues', annot=True)
-        plt.title(f'Event Load by Day of the Week and Week of the Term ({term_year})', fontsize=16, fontweight='bold')
+        plt.title(f'Task Load by Day of the Week and Week of the Term ({term_year})', fontsize=16, fontweight='bold')
         plt.ylabel('', fontsize=14, fontweight='bold')
         plt.yticks(rotation=45)
         plt.gca().invert_yaxis()
@@ -82,7 +187,7 @@ def plotDayOfTheWeekByWeekOfTheTermTotal(df):
 
         plt.figure(figsize=(14, 8))
         sns.heatmap(heatmap_data, cmap='Blues', annot=True)
-        plt.title(f'Event Load by Day of the Week and Week of the Term ({term.capitalize()} 2022-2025)', fontsize=16, fontweight='bold')
+        plt.title(f'Task Load by Day of the Week and Week of the Term ({term.capitalize()} 2022-2025)', fontsize=16, fontweight='bold')
         plt.ylabel('', fontsize=14, fontweight='bold')
         plt.yticks(rotation=30)
         plt.gca().invert_yaxis()
@@ -149,27 +254,57 @@ def plotTopLocationsByEventStartTime(df, top_n=15):
     
     plt.show()
 
+def loadMergedDataTickets():
+    df = pd.read_csv("Data/Data-PEPS-TDX Tickets - Merged Report.csv")
+    df['Created'] = pd.to_datetime(df['Created'], format='%m/%d/%Y', errors='coerce') # Convert 'Created' column to datetime (assuming format is MM/DD/YYYY)
+    df = df.dropna(subset=['Created', 'Event Start Times'])  # Remove rows where dates are missing
+    df['Event Start Times'] = df['Event Start Times'].apply(cleanEventTimeString)
+    df['Event Start Times'] = df['Event Start Times'] + pd.Timedelta(hours=5)  # Adds 5 hours to account for the TDX data time zone conversion
+    return df
+
+def cleanEventTimeString(datetime_str):
+    if pd.isna(datetime_str): # missing values
+        return pd.NaT  
+    cleaned_str = re.sub(r'GMT[+-]\d{4}.*', '', datetime_str).strip()
+
+    try:
+        return parser.parse(cleaned_str)
+    except Exception:
+        return pd.NaT
+
+def parseEventStartTimes(df=default_df):
+    if 'Event Start Times' not in df.columns:
+        raise KeyError("The 'Event Start Times' column is missing from the DataFrame.")
+    df['event_hour_24'] = df['Event Start Times'].dt.hour
+    df['event_hour'] = df['Event Start Times'].dt.strftime("%I %p")
+    df['event_day'] = df['Event Start Times'].dt.day
+    df['event_month'] = df['Event Start Times'].dt.month
+    df['day_of_the_week'] = df['Event Start Times'].dt.day_name()
+
 if __name__ == "__main__":
-    df = loadMergedDataTickets()
-    parseEventStartTimes(df)
-    orderEventHoursLogically(df)
+    df = loadTasks()
+    parseTaskStartTimes(df)
+    orderTaskHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
-
-    plotTopLocationsByEventStartTime(df)
-
-    #### Plotting 
-    # df1 = eventLoadByWeekOfTheTerm(df, "winter")
-    # plotDayOfTheWeekByWeekOfTheTermYearly(df1)
-    # plotDayOfTheWeekByWeekOfTheTermTotal(df1)
+    orderTaskMonthsLogically(df)
     
-    # plotEventLoad(df, "hour")
-    # plotEventLoad(df, "day")
-    # plotDayofTheWeekByHour(df)
-    # plotDayByMonth(df)
+    df1 = taskLoadByWeekOfTheTerm(df, "fall")
+    plotDayOfTheWeekByWeekOfTheTermYearly(df1)
+    plotDayOfTheWeekByWeekOfTheTermTotal(df1)
+    
+    # Enhanced plotting with timing information
+    plotTaskLoadWithTimingInfo(df, "hour")
+    plotTaskLoadWithTimingInfo(df, "day")
+    plotDayofTheWeekByHourWithTimingInfo(df)
+    plotDayByMonthWithTimingInfo(df)
+
+    df2 = loadMergedDataTickets()
+    parseEventStartTimes(df2)
+    plotTopLocationsByEventStartTime(df2)
 
     # # Plotting functions from analyze_tdx_tickets.py (Do not involve time )
-    df2 = loadDataTickets()
-    plotTopLocations(df2)
-    plotTopDepartments(df2)
-    plotTopRequestors(df2)
-    plotTopResponsiblePeople(df2)
+    df3 = loadDataTickets()
+    plotTopLocations(df3)
+    plotTopDepartments(df3)
+    plotTopRequestors(df3)
+    plotTopResponsiblePeople(df3)

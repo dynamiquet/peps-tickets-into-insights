@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/Users/loaner/Library/Mobile Documents/com~apple~CloudDocs/Desktop/WinterTerm_2025/DataSquad/datasquad/myvenv/bin/python3" "$0" "$@"
-' '''
+#!/Users/dynamiquetwizere/Desktop/SpringTerm_2025/DataSquad/datasquad/myvenv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys
