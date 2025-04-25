@@ -6,7 +6,7 @@
 import pandas as pd
 import csv
 
-def loadTasks(filter_option=None):
+def loadTasks(dept_filter=None):
     df = pd.read_csv("Data/Data-PEPS-TDX Tickets - TDX Peps Task Report January 2.csv")
     for col in ['Created', 'Task Due', 'Event Start']:
         df[col] = pd.to_datetime(df[col], format='%m/%d/%y %H:%M', errors='coerce') 
@@ -15,14 +15,14 @@ def loadTasks(filter_option=None):
     if df['Event Start'].isna().any():
         df['Event Start'].fillna(df['Task Due'], inplace=True)
 
-    if filter_option == "no_media":
+    if dept_filter == "no_media":
         df = df[~df['Title'].str.contains("STANDARD|VIDEO|MEDIA|CONVO", case=False, na=False)]
-    elif filter_option == "media":
+    elif dept_filter == "media_only":
         df = df[df['Title'].str.contains("STANDARD|VIDEO|MEDIA|CONVO", case=False, na=False)]
 
-    return df
+    return df, dept_filter
 
-default_df = loadTasks(filter_option=None)
+default_df = loadTasks(dept_filter=None)
 default_term = "fall"
 term_dates = {
     "fall": [
