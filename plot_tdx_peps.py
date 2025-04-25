@@ -224,29 +224,29 @@ def parseEventStartTimes(df=default_df):
     df['day_of_the_week'] = df['Event Start Times'].dt.day_name()
 
 if __name__ == "__main__":
-    df = loadTasks("media")
+    df = loadTasks("no_media")
     parseTaskStartTimes(df)
     orderTaskHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
-    orderTaskMonthsLogically(df)
+    orderTaskMonthsLogically(df) 
     
-    df1 = taskLoadByWeekOfTheTerm(df, "fall")
+    df1 = taskLoadByWeekOfTheTerm(df, "spring")
     plotDayOfTheWeekByWeekOfTheTermYearly(df1)
     plotDayOfTheWeekByWeekOfTheTermTotal(df1)
     
     # Enhanced plotting with timing information
-    plotTaskLoad(df, "hour")
-    plotTaskLoad(df, "day")
-    plotDayofTheWeekByHour(df)
-    plotDayByMonth(df)
+    # plotTaskLoad(df, "hour")
+    # plotTaskLoad(df, "day")
+    # plotDayofTheWeekByHour(df)
+    # plotDayByMonth(df)
 
     df2 = loadMergedDataTickets()
-    parseEventStartTimes(df2)
-    plotTopLocationsByEventStartTime(df2)
+    # parseEventStartTimes(df2)
+    # plotTopLocationsByEventStartTime(df2)
 
     # # Plotting functions from analyze_tdx_tickets.py (Do not involve time )
     df3 = loadDataTickets()
-    plotTopLocations(df3)
-    plotTopDepartments(df3)
-    plotTopRequestors(df3)
-    plotTopResponsiblePeople(df3)
+    # plotTopLocations(df3)
+    # plotTopDepartments(df3)
+    # plotTopRequestors(df3)
+    # plotTopResponsiblePeople(df3)
