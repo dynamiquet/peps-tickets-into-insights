@@ -22,7 +22,7 @@ def loadTasks(dept_filter=None):
 
     return df, dept_filter
 
-default_df = loadTasks(dept_filter=None)
+default_df, dept_filler = loadTasks(dept_filter=None)
 default_term = "fall"
 term_dates = {
     "fall": [
@@ -229,8 +229,7 @@ def analyzeTicketTimingByTerm(df=default_df, term=default_term):
     }
 
 def exportToCSV(data, term):
-
-    filename = f"Task_Analysis_{term.capitalize()}_Term.csv"
+    filename = f"PEPS_Overall Task Scheduling_{term.capitalize()}_Term.csv"
     with open(filename, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Week of the Term", "Weekend Tasks", "Weekday Tasks", "Business Hours", "Non-Business Hours"])
@@ -239,10 +238,10 @@ def exportToCSV(data, term):
     print(f"CSV exported as {filename}")
 
 if __name__ == "__main__":
-    df = loadTasks()
+    df, dept_filler = loadTasks("no_media")
     parseTaskStartTimes(df)
     # taskLoadByHour()
     # taskLoadByDayofTheMonth()
     # taskLoadByWeekOfTheTerm()
     # analyzeTicketTiming(df)
-    analyzeTicketTimingByTerm(df, "fall")
+    analyzeTicketTimingByTerm(df, "winter")

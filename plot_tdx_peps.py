@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def plotTaskLoad(df, time_unit, dept_filter=None):
+    if dept_filter == "media_only":
+        df = dropConvoAndLTC(df)
+    
     suffix = "M" if dept_filter=="media_only" else "E" if dept_filter=="no_media" else ""
     plt.figure(figsize=(12, 6))
     if time_unit.lower() == 'hour':
@@ -215,18 +218,18 @@ def parseEventStartTimes(df=default_df):
     df['day_of_the_week'] = df['Event Start Times'].dt.day_name()
 
 if __name__ == "__main__":
-    df, dept_filter = loadTasks("media_only")
+    df, dept_filter = loadTasks()
     parseTaskStartTimes(df)
     orderTaskHoursLogically(df)
     orderDaysOfTheWeekLogically(df)
     orderTaskMonthsLogically(df)
     
-    plotTaskLoad(df, "hour", dept_filter)
-    plotTaskLoad(df, "day", dept_filter)
-    plotDayofTheWeekByHour(df, dept_filter)
-    plotDayByMonth(df, dept_filter)
+    # plotTaskLoad(df, "hour", dept_filter)
+    # plotTaskLoad(df, "day", dept_filter)
+    # plotDayofTheWeekByHour(df, dept_filter)
+    # plotDayByMonth(df, dept_filter)
    
-    df1 = taskLoadByWeekOfTheTerm(df, "spring")
+    df1 = taskLoadByWeekOfTheTerm(df, "winter")
     plotDayOfTheWeekByWeekOfTheTermYearly(df1, dept_filter)
     plotDayOfTheWeekByWeekOfTheTermTotal(df1, dept_filter)
     
