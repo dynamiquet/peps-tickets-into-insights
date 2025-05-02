@@ -7,7 +7,7 @@ import pandas as pd
 import csv
 
 def loadTasks(dept_filter=None):
-    df = pd.read_csv("Data/Data-PEPS-TDX Tickets - TDX Peps Task Report January 2.csv")
+    df = pd.read_csv("/Data/Data-PEPS-TDX Tickets - TDX Peps Task Report January 2.csv")
     for col in ['Created', 'Task Due', 'Event Start']:
         df[col] = pd.to_datetime(df[col], format='%m/%d/%y %H:%M', errors='coerce') 
     if df['Task Due'].isna().any():
@@ -229,7 +229,7 @@ def analyzeTicketTimingByTerm(df=default_df, term=default_term):
     }
 
 def exportToCSV(data, term):
-    filename = f"PEPS_Overall Task Scheduling_{term.capitalize()}_Term.csv"
+    filename = f"Results/PEPS_Overall Task Scheduling_{term.capitalize()}_Term.csv"
     with open(filename, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Week of the Term", "Weekend Tasks", "Weekday Tasks", "Business Hours", "Non-Business Hours"])
