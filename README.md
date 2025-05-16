@@ -7,6 +7,23 @@ Turning raw event ticket data into actionable insights for smarter resource plan
 This project analyzes event ticket data from TeamDynamix (TDX) used by PEPS (Presentation, Events, and Production Support) to uncover patterns in event scheduling, workload distribution, and resource demand. Our goal is to provide clear, visual tools to help the department better anticipate and manage logistical needs.
 
 ---
+## 🛠️ How to Use
+
+
+1. **Install dependencies**  
+   Run the following in your terminal:  
+
+   > pip install -r requirements.txt
+
+
+2. **Generating plots**
+
+    Run the following command to generate plots using matplotlib and Seaborn libraries.
+    
+    > python3 Scripts/plot_tdx_peps.py
+    
+
+    Feel free to change functions in the function `main`  in file `plot_tdx_peps` to choose what plots you want to generate.
 
 ## 📁 Project Structure
 
@@ -27,8 +44,6 @@ This project analyzes event ticket data from TeamDynamix (TDX) used by PEPS (Pre
 - **Pandas**: Data wrangling
 - **Matplotlib & Seaborn**: Charting and visualizations
 - **Google Apps Script**: Cleaning and exporting data from Google Sheets
-- **TDX (TeamDynamix)**: Source of ticket data
-
 ---
 
 ## 📈 Key Visualizations
