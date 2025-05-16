@@ -8,6 +8,15 @@ import pandas as pd
 import csv
 
 def loadTasks(dept_filter=None):
+    """
+    Load tasks from the CSV file and filter them based on the department.
+
+    Args:
+        dept_filter (str, optional): Filter for department. Options are "no_media" or "media_only".
+
+    Returns:
+        tuple: A DataFrame containing the tasks and the department filter applied.
+    """
     df = pd.read_csv("Data/Data-PEPS-TDX Tickets - TDX Peps Task Report January 2.csv")
     for col in ['Created', 'Task Due', 'Event Start']:
         df[col] = pd.to_datetime(df[col], format='%m/%d/%y %H:%M', errors='coerce') 
@@ -44,6 +53,15 @@ term_dates = {
 }
 
 def parseTaskStartTimes(df=default_df):
+    """
+    Parse the 'Task Due' column to extract time-related information.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+
+    Returns:
+        None
+    """
     if "Task Due" not in df.columns:
         print(" \'Task Due\' column does not exist!")
     df['task_hour_24'] = df['Task Due'].dt.hour
@@ -55,6 +73,15 @@ def parseTaskStartTimes(df=default_df):
     print("hey!")
 
 def orderTaskHoursLogically(df=default_df):
+    """
+    Order the 'task_hour' column logically from 5 AM to 11 PM.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+
+    Returns:
+        None
+    """
     hours_order = [
         "05 AM", "06 AM", "07 AM", "08 AM", "09 AM", "10 AM", "11 AM", "12 PM", 
         "01 PM", "02 PM", "03 PM", "04 PM", "05 PM", "06 PM", "07 PM", "08 PM", 
@@ -63,14 +90,42 @@ def orderTaskHoursLogically(df=default_df):
     df["task_hour"] = pd.Categorical(df["task_hour"], categories=hours_order, ordered=True)
 
 def orderTaskMonthsLogically(df=default_df):
+    """
+    Order the 'task_month_name' column logically from January to December.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+
+    Returns:
+        None
+    """
     months_order = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     df["task_month_name"] = pd.Categorical(df["task_month_name"], categories=months_order, ordered=True)
 
 def orderDaysOfTheWeekLogically(df=default_df):
+    """
+    Order the 'day_of_the_week' column logically from Monday to Sunday.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+
+    Returns:
+        None
+    """
     days_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     df["day_of_the_week"] = pd.Categorical(df["day_of_the_week"], categories=days_order, ordered=True)
 
 def taskLoadByHour(df=default_df, number=24):
+    """
+    Analyze task load by hour and print the top hours with the most tasks.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        number (int): The number of top hours to display.
+
+    Returns:
+        Series: Task counts by hour.
+    """
     top_loaded_hours = df['task_hour'].value_counts().head(number)
     print(f"{'Hour':<10} {'Number of tasks':>20}")
     print("="*30)
@@ -79,6 +134,16 @@ def taskLoadByHour(df=default_df, number=24):
     return top_loaded_hours
 
 def taskLoadByDayofTheMonth(df=default_df, number=31):
+    """
+    Analyze task load by day of the month and print the top days with the most tasks.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        number (int): The number of top days to display.
+
+    Returns:
+        Series: Task counts by day of the month.
+    """
     top_loaded_days = df['task_day'].value_counts().head(number)
     print(f"{'Day of the Month':<20} {'Number of tasks':>20}")
     print("="*40)
@@ -87,6 +152,16 @@ def taskLoadByDayofTheMonth(df=default_df, number=31):
     return top_loaded_days
 
 def taskLoadByDayofTheWeek(df=default_df, number=7):
+    """
+    Analyze task load by day of the week and print the top days with the most tasks.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        number (int): The number of top days to display.
+
+    Returns:
+        Series: Task counts by day of the week.
+    """
     top_loaded_days = df['day_of_the_week'].value_counts().head(number)
     print(f"{'Day of the Week':<20} {'Number of tasks':>20}")
     print("="*40)
@@ -95,6 +170,16 @@ def taskLoadByDayofTheWeek(df=default_df, number=7):
     return top_loaded_days
 
 def assignWeekofTheTerm(task_due, term_start):
+    """
+    Assign the week of the term for a given task due date.
+
+    Args:
+        task_due (datetime): The task due date.
+        term_start (datetime): The start date of the term.
+
+    Returns:
+        str: The week of the term.
+    """
     task_due = pd.to_datetime(task_due)
     term_start = pd.to_datetime(term_start)
 
@@ -103,6 +188,16 @@ def assignWeekofTheTerm(task_due, term_start):
     return f"Week {(days_into_term // 7) + 1}"
 
 def taskLoadByWeekOfTheTerm(df=default_df, term=default_term):
+    """
+    Analyze task load by week of the term for a given term.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        term (str): The term name ('fall', 'winter', or 'spring').
+
+    Returns:
+        DataFrame: A DataFrame with tasks categorized by week of the term.
+    """
     if term.lower() not in term_dates:
         print("Invalid term name! Use 'fall', 'winter', or 'spring' for the name of the term")
         return
@@ -132,6 +227,15 @@ def taskLoadByWeekOfTheTerm(df=default_df, term=default_term):
     return term_df
 
 def analyzeTicketTiming(df=default_df):
+    """
+    Analyze ticket timing by day type (weekday/weekend) and business hours.
+
+    Args:
+        df (DataFrame): The DataFrame containing ticket data.
+
+    Returns:
+        dict: Counts of tickets by day type and business hours.
+    """
     # Drop duplicate Ticket IDs to ensure ticket-level analysis
     unique_tickets = df.drop_duplicates(subset=['Ticket ID']).copy()
 
@@ -167,6 +271,16 @@ def analyzeTicketTiming(df=default_df):
     }
 
 def analyzeTicketTimingByTerm(df=default_df, term=default_term):
+    """
+    Analyze ticket timing by term, including day type and business hours.
+
+    Args:
+        df (DataFrame): The DataFrame containing ticket data.
+        term (str): The term name ('fall', 'winter', or 'spring').
+
+    Returns:
+        dict: Counts of tickets by day type and business hours for each week of the term.
+    """
     if term.lower() not in term_dates:
         print("Invalid term name! Use 'fall', 'winter', or 'spring' for the name of the term")
         return
@@ -230,6 +344,16 @@ def analyzeTicketTimingByTerm(df=default_df, term=default_term):
     }
 
 def exportToCSV(data, term):
+    """
+    Export the analyzed data to a CSV file.
+
+    Args:
+        data (list): The data to export.
+        term (str): The term name used in the filename.
+
+    Returns:
+        None
+    """
     filename = f"Results/PEPS_Overall Task Scheduling_{term.capitalize()}_Term.csv"
     with open(filename, mode='w', newline='') as file:
         writer = csv.writer(file)

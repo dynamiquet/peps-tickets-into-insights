@@ -12,6 +12,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def plotTaskLoad(df, time_unit, dept_filter=None):
+    """
+    Plot the task load by hour or day.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        time_unit (str): The time unit to plot ('hour' or 'day').
+        dept_filter (str, optional): Filter for department. Options are "media_only" or None.
+
+    Returns:
+        None
+    """
     if dept_filter == "media_only":
         df = dropConvoAndLTC(df)
     
@@ -37,28 +48,33 @@ def plotTaskLoad(df, time_unit, dept_filter=None):
     plt.show()
 
 def dropConvoAndLTC(df):
+    """
+    Drop tasks related to LTC and Convo events.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+
+    Returns:
+        DataFrame: The filtered DataFrame.
+    """
     LTC = (df['task_hour_24'] == 11) & (df['day_of_the_week'] == 'Tuesday')
     convo = ((df['task_hour_24'] == 10) & (df['day_of_the_week'] == 'Friday'))
     return df[~(LTC | convo)]
 
 def plotDayofTheWeekByHour(df, dept_filter=None):
+    """
+    Plot a heatmap of tasks by hour and day of the week.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        dept_filter (str, optional): Filter for department. Options are "media_only" or None.
+
+    Returns:
+        None
+    """
     if dept_filter == "media_only":
         df = dropConvoAndLTC(df)
 
-    suffix = "M" if dept_filter=="media_only" else "E" if dept_filter=="no_media" else ""
-    heatmap_data = df.pivot_table(index='task_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
-    plt.figure(figsize=(14, 8))
-    sns.heatmap(heatmap_data, cmap='Blues', annot=True, fmt='d')
-    plt.title(f'Tasks by Hour and Day of the Week (2022-2025) [{suffix}]', fontsize=15, fontweight='bold')
-    plt.gca().invert_yaxis()
-    plt.xlabel('Day of the Week', fontsize=14, fontweight='bold')
-    plt.ylabel('Hour of the Day', fontsize=14, fontweight='bold')
-    plt.show()
-
-def plotDayofTheWeekByHour(df, dept_filter=None):
-    if dept_filter == "media_only":
-        df = dropConvoAndLTC(df)
-    
     suffix = "M" if dept_filter=="media_only" else "E" if dept_filter=="no_media" else ""
     heatmap_data = df.pivot_table(index='task_hour', columns='day_of_the_week', aggfunc='size', fill_value=0)
     plt.figure(figsize=(14, 8))
@@ -70,6 +86,16 @@ def plotDayofTheWeekByHour(df, dept_filter=None):
     plt.show()
 
 def plotDayByMonth(df, dept_filter=None):
+    """
+    Plot a heatmap of tasks by day and month.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        dept_filter (str, optional): Filter for department. Options are "media_only" or None.
+
+    Returns:
+        None
+    """
     if dept_filter == "media_only":
         df = dropConvoAndLTC(df)
     suffix = "M" if dept_filter=="media_only" else "E" if dept_filter=="no_media" else ""
@@ -85,6 +111,16 @@ def plotDayByMonth(df, dept_filter=None):
     plt.show()
 
 def plotDayOfTheWeekByWeekOfTheTermYearly(df, dept_filter=None):
+    """
+    Plot tasks by day of the week and week of the term for each year.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        dept_filter (str, optional): Filter for department. Options are "media_only" or None.
+
+    Returns:
+        None
+    """
     if dept_filter == "media_only":
         df = dropConvoAndLTC(df)    
     
@@ -109,6 +145,16 @@ def plotDayOfTheWeekByWeekOfTheTermYearly(df, dept_filter=None):
         plt.show()
 
 def plotDayOfTheWeekByWeekOfTheTermTotal(df, dept_filter=None):
+    """
+    Plot tasks by day of the week and week of the term across all years.
+
+    Args:
+        df (DataFrame): The DataFrame containing task data.
+        dept_filter (str, optional): Filter for department. Options are "media_only" or None.
+
+    Returns:
+        None
+    """
     if dept_filter == "media_only":
         df = dropConvoAndLTC(df)    
     
@@ -133,6 +179,16 @@ def plotDayOfTheWeekByWeekOfTheTermTotal(df, dept_filter=None):
         plt.show()
 
 def plotTopLocations(df=default_df, top_n=10):
+    """
+    Plot the top N locations by the number of events.
+
+    Args:
+        df (DataFrame): The DataFrame containing event data.
+        top_n (int): The number of top locations to display.
+
+    Returns:
+        None
+    """
     top_locations = topLocations(df, top_n)
     plt.figure(figsize=(12, 6))
     sns.barplot(x=top_locations.values, y=top_locations.index, color='#0b84e0')
@@ -142,6 +198,16 @@ def plotTopLocations(df=default_df, top_n=10):
     plt.show()
 
 def plotTopDepartments(df=default_df, top_n=10):
+    """
+    Plot the top N departments by the number of events.
+
+    Args:
+        df (DataFrame): The DataFrame containing event data.
+        top_n (int): The number of top departments to display.
+
+    Returns:
+        None
+    """
     top_departments = topDepartments(df, top_n)
     plt.figure(figsize=(12, 6))
     sns.barplot(x=top_departments.values, y=top_departments.index, color='#0b84e0')
@@ -151,6 +217,16 @@ def plotTopDepartments(df=default_df, top_n=10):
     plt.show()
 
 def plotTopRequestors(df=default_df, top_n=10):
+    """
+    Plot the top N requestors by the number of events.
+
+    Args:
+        df (DataFrame): The DataFrame containing event data.
+        top_n (int): The number of top requestors to display.
+
+    Returns:
+        None
+    """
     top_requestors = topRequestors(df, top_n)
     plt.figure(figsize=(12, 6))
     sns.barplot(x=top_requestors.values, y=top_requestors.index, color='#0b84e0')
@@ -160,6 +236,16 @@ def plotTopRequestors(df=default_df, top_n=10):
     plt.show()
 
 def plotTopResponsiblePeople(df=default_df, top_n=10):
+    """
+    Plot the top N responsible people by the number of events.
+
+    Args:
+        df (DataFrame): The DataFrame containing event data.
+        top_n (int): The number of top responsible people to display.
+
+    Returns:
+        None
+    """
     top_responsible_people = topResponsiblePeople(df, top_n)
     plt.figure(figsize=(12, 6))
     sns.barplot(x=top_responsible_people.values, y=top_responsible_people.index, color='#0b84e0')
@@ -169,6 +255,16 @@ def plotTopResponsiblePeople(df=default_df, top_n=10):
     plt.show()
 
 def plotTopLocationsByEventStartTime(df, top_n=15):
+    """
+    Plot a bubble chart of the top N locations by event start time.
+
+    Args:
+        df (DataFrame): The DataFrame containing event data.
+        top_n (int): The number of top locations to display.
+
+    Returns:
+        None
+    """
     # Combine 'Peps Location' and 'Other Location' into one column
     df['Location'] = df['Peps Location'].where(df['Peps Location'] != "Other", df['Other Location'])
     df = df.dropna(subset=['Location'])
@@ -193,6 +289,12 @@ def plotTopLocationsByEventStartTime(df, top_n=15):
     plt.show()
 
 def loadMergedDataTickets():
+    """
+    Load merged ticket data from the CSV file.
+
+    Returns:
+        DataFrame: The loaded DataFrame.
+    """
     df = pd.read_csv("Data/Data-PEPS-TDX Tickets - Merged Report.csv")
     df['Created'] = pd.to_datetime(df['Created'], format='%m/%d/%Y', errors='coerce') # Convert 'Created' column to datetime (assuming format is MM/DD/YYYY)
     df = df.dropna(subset=['Created', 'Event Start Times'])  # Remove rows where dates are missing
@@ -201,6 +303,15 @@ def loadMergedDataTickets():
     return df
 
 def cleanEventTimeString(datetime_str):
+    """
+    Clean and parse the event start time string.
+
+    Args:
+        datetime_str (str): The datetime string to clean.
+
+    Returns:
+        datetime: The cleaned datetime object.
+    """
     if pd.isna(datetime_str): # missing values
         return pd.NaT  
     cleaned_str = re.sub(r'GMT[+-]\d{4}.*', '', datetime_str).strip()
@@ -211,6 +322,15 @@ def cleanEventTimeString(datetime_str):
         return pd.NaT
 
 def parseEventStartTimes(df=default_df):
+    """
+    Parse the 'Event Start Times' column to extract time-related information.
+
+    Args:
+        df (DataFrame): The DataFrame containing event data.
+
+    Returns:
+        None
+    """
     if 'Event Start Times' not in df.columns:
         raise KeyError("The 'Event Start Times' column is missing from the DataFrame.")
     df['event_hour_24'] = df['Event Start Times'].dt.hour
